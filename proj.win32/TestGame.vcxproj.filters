@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="win32">
+      <UniqueIdentifier>{84a8ebd7-7cf0-47f6-b75e-d441df67da40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource">
+      <UniqueIdentifier>{715254bc-d70b-4ec5-bf29-467dd3ace079}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{bb6c862e-70e9-49d9-81b7-3829a6f50471}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ControlLayer">
+      <UniqueIdentifier>{9659f59c-24a5-49cd-a999-658cb0859888}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\MenuLayer">
+      <UniqueIdentifier>{62e6419f-2d90-4f93-921e-a0af0d800687}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\MapElements">
+      <UniqueIdentifier>{b7b94117-24d4-4990-90a2-64fabdda911c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Scences">
+      <UniqueIdentifier>{ab4666c5-3dd6-4d6f-b1ad-0ded040141b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\MainLayer">
+      <UniqueIdentifier>{900ffaac-48a7-4acc-9bf2-0843fc801e8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Tools">
+      <UniqueIdentifier>{e71544e1-e65e-4fca-857b-c1f9d5626fb9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>win32</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="main.h">
+      <Filter>win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\AppDelegate.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Navigator.h">
+      <Filter>src\ControlLayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\PromptMenuLayer.h">
+      <Filter>src\MenuLayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\MapLayer.h">
+      <Filter>src\MapElements</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\ConsoleLayer.h">
+      <Filter>src\ControlLayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Scenes.h">
+      <Filter>src\Scences</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\MainLayer.h">
+      <Filter>src\MainLayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\MainMenuLayer.h">
+      <Filter>src\MenuLayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\MyUtils.h">
+      <Filter>src\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\EscMenu.h">
+      <Filter>src\MenuLayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\MonsterNodes.h">
+      <Filter>src\MapElements</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\PlayerNode.h">
+      <Filter>src\MapElements</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\SkillNodes.h">
+      <Filter>src\MapElements</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="game.rc">
+      <Filter>resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
