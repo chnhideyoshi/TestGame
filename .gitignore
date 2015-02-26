@@ -181,3 +181,10 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
+*.jpg
+*.png
+*.ttf
+*.dll
+*.wav
+*.mp3
+*.exe
