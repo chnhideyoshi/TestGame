@@ -103,7 +103,7 @@ public:
 		}
 		this->scheduleOnce(SEL_SCHEDULE(&Skill::End), removeDelay);
 	}
-	void End(float dt)
+	virtual void End(float dt)
 	{
 		if (onEnd != NULL)
 			onEnd(this);
@@ -163,8 +163,8 @@ public:
 		coverRanges.push_back(Rect(0, -160, 220, 260));
 		executeDelay = 0.25f;
 		removeDelay = 0.1f;
-		mpused = 100;
-		damage = 800;
+		mpused = 10;
+		damage = 560;
 		return true;
 	}
 	virtual void Start()
@@ -199,8 +199,8 @@ public:
 		coverRanges.push_back(Rect(0, -170, 140, 180));
 		executeDelay = 0.25f;
 		removeDelay = 0;
-		mpused = 100;
-		damage = 600;
+		mpused = 11;
+		damage = 400;
 		return true;
 	}
 	virtual void Start()
@@ -231,8 +231,8 @@ public:
 		coverRanges.push_back(Rect(0, -100, 200, 220));
 		executeDelay = 0.55f;
 		removeDelay = 0;
-		mpused = 100;
-		damage = 800;
+		mpused = 11;
+		damage = 630;
 		return true;
 	}
 	virtual void Start()
@@ -263,8 +263,8 @@ public:
 		coverRanges.push_back(Rect(-80,-100, 260, 200));
 		executeDelay = 0.6;
 		removeDelay = 0;
-		mpused = 100;
-		damage = 1200;
+		mpused = 200;
+		damage = 850;
 		Sprite* sp1 = Sprite::create("Skill\\atk4d.png");
 		sp1->setAnchorPoint(Point(0.5, 0.5));
 		sp1->setPosition(-20, 0);
@@ -290,14 +290,13 @@ public:
 class Skill_ATK5 :public Skill
 {
 public:
-	Skill_ATK5() :sk_ac(NULL), sk_aca(NULL)
+	Skill_ATK5() :sk_ac(NULL)
 	{
 
 	}
 	~Skill_ATK5()
 	{
 		CC_SAFE_RELEASE_NULL(sk_ac);
-		CC_SAFE_RELEASE_NULL(sk_aca);
 	}
 	CREATE_FUNC(Skill_ATK5);
 	virtual bool init()
@@ -307,60 +306,57 @@ public:
 			return false;
 		}
 		coverRanges.push_back(Rect(-400, -200, 800, 400));
-		executeDelay = 1;
-		removeDelay = 2;
-		mpused = 100;
+		executeDelay = 0.8f;
+		removeDelay = 0.5f;
+		mpused = 300;
 		damage = 1200;
 		Sprite* sp1 = Sprite::create("Skill\\atk5d.png");
 		sp1->setAnchorPoint(Point(0.5, 0.5));
 		sp1->setName("sp1");
+		sp1->setVisible(true);
+		sp1->setGlobalZOrder(9);
 		this->addChild(sp1);
-		Animation* pATK5 = Tools::createWithSingleFrameName("sk1_", 0.1f, 1);
-		this->setATK5Action(Sequence::create(DelayTime::create(0), Animate::create(pATK5), NULL));
+		Animation* pATK5 = Tools::createWithSingleFrameName("sk1_", 0.05f, 10);
+		this->setATK5Action(Sequence::create(DelayTime::create(0), Animate::create(pATK5), CallFuncN::create([&](Node* sp)
+		{
+			sp->setVisible(false);
+		}), NULL));
 
-		
-		Animation* pATK5a = Tools::createWithSingleFrameName("sk3_", 0.2f, 1);
-		Action* ac = Sequence::create(DelayTime::create(0), Animate::create(pATK5a), CallFunc::create(this, SEL_CallFunc(&Skill_ATK5::OnShowEnd)),NULL);
-		ac->setTag(999);
-		this->setATK5aAction(ac);
 		return true;
+	}
+	virtual void ExecuteDamageOnce(float delta)
+	{
+		Skill::ExecuteDamageOnce(delta);
+		Sprite* sp1 = (Sprite*)this->getChildByName("sp1");
+		sp1->setVisible(false);
+		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Sound//bomb.wav");
 	}
 	virtual void ShowDamage(MonsterNode* mon,int index)
 	{
 		Sprite* sp1a = Sprite::create("Skill\\atk5da.png");
 		sp1a->setAnchorPoint(Point(0.5, 0.5));
-		sp1a->setTag(5*index);
+		Point pos = mon->getPosition() - this->getPosition();
+		sp1a->setPositionX(pos.x);
+		sp1a->setPositionY(pos.y + 50);
 		this->addChild(sp1a);
-		sp1a->runAction(sk_aca);
-	}
-	void OnShowEnd()
-	{
-		Vector<Node*> &sps=this->getChildren();
-		for (int i = 0; i < sps.size(); i++)
+		Animation* pATK5a = Tools::createWithSingleFrameName("sk3_", 0.03f, 1);
+		Action* ac = Sequence::create(Animate::create(pATK5a), CallFuncN::create([=](Node* sp)
 		{
-			Node* node = sps.at(i);
-			if (node->getName() != std::string("sp1"))
-			{
-				Sprite* sp = (Sprite*)node;
-				Action* ac = sp->getActionByTag(999);
-				if (ac->isDone())
-				{
-					sp->removeFromParentAndCleanup(true);
-				}
-			}
-		}
+			sp->removeFromParentAndCleanup(true);
+		}), NULL);
+		sp1a->runAction(ac);
 	}
 	virtual void Start()
 	{
 		Skill::Start();
 		auto sp1 = (Sprite*)this->getChildByName("sp1");
 		sp1->stopAllActions();
+		sp1->setVisible(true);
 		sp1->runAction(sk_ac);
 		this->ShowPanel(true);
 		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Sound//hit3.wav");
 	}
 	CC_SYNTHESIZE_RETAIN(Action*, sk_ac, ATK5Action);
-	CC_SYNTHESIZE_RETAIN(Action*, sk_aca, ATK5aAction);
 };
 
 class Skill_ATK6 :public Skill
@@ -385,8 +381,8 @@ public:
 		coverRanges.push_back(Rect(-70, -100,880, 350));
 		executeDelay = 2;
 		removeDelay = 0.5f;
-		mpused = 200;
-		damage = 3000;
+		mpused = 500;
+		damage = 2000;
 
 
 		Sprite* sp1 = Sprite::create("Skill\\atk6d.png");	
@@ -438,7 +434,7 @@ public:
 		sp2->runAction(sk_aca);
 		sp1->setVisible(false);
 		this->ShowPanel(true);
-		this->scheduleOnce(SEL_SCHEDULE(&Skill_ATK6::ExecuteDamageOnce), executeDelay);
+		//this->scheduleOnce(SEL_SCHEDULE(&Skill_ATK6::ExecuteDamageOnce), executeDelay);
 		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Sound//thunder.wav");
 	}
 	CC_SYNTHESIZE_RETAIN(Action*, sk_ac, ATK6Action);
@@ -479,8 +475,8 @@ public:
 		}
 		coverRanges.push_back(Rect(-50,0, 255, 160));
 		executeDelay = 0.5f;
-		mpused = 200;
-		damage = 1500;
+		mpused = 500;
+		damage = 1100;
 
 
 		Sprite* sp1 = Sprite::create("Skill\\atk7d.png");
@@ -504,7 +500,6 @@ public:
 		sp1->setScale(1, 1);
 		sp1->runAction(sk_ac);
 		this->ShowPanel(true);
-		this->scheduleOnce(SEL_SCHEDULE(&Skill_ATK7::ExecuteDamageOnce), executeDelay);
 		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Sound//wind.wav");
 	}
 	CC_SYNTHESIZE_RETAIN(Action*, sk_ac, ATK7Action);
@@ -523,16 +518,14 @@ public:
 			return false;
 		}
 		this->coverRanges.push_back(Rect(0,-50,100,100));
-		this->damage = 100;
+		this->damage = 800;
 		this->executeDelay = 0;
+		this->removeDelay = 0;
 		return true;
 	}
 	virtual void Start()
 	{
 		Skill::Start();
-		ShowPanel(true);
-		if (onExecuteDamage != NULL)
-			onExecuteDamage(this);
 	}
 };
 
@@ -561,11 +554,21 @@ public:
 	{
 		this->monsters = monsters;
 	}
-	void PlayerExecuteSkill(PlayerNode* player, Skills skillType, Layout* map)
+	bool GetChecked(PlayerNode* player, OnceState skill)
+	{
+		Skill* sk =skills.at(playermaptable[skill]);
+		if (sk->getMpUsed() > player->getMp())
+			return false;
+		else
+		{
+			return true;
+		}
+	}
+	bool PlayerExecuteSkill(PlayerNode* player, Skills skillType, Layout* map)
 	{
 		Skill* sk = skills.at(skillType);
 		if (sk == NULL)
-			return;
+			return false;
 		int mp=sk->getMpUsed();
 		if (mp < player->getMp())
 		{
@@ -575,9 +578,14 @@ public:
 			sk->setIsfoward(!player->isFlippedX());
 			AddOrShow(map, sk);
 			sk->Start();
+			return true;
+		}
+		else
+		{
+			return false;
 		}
 	}
-	void MonsterExecuteSkill(MonsterNode* mon, Skills skillType, Layout* map)
+	bool MonsterExecuteSkill(MonsterNode* mon, Skills skillType, Layout* map)
 	{
 		Skill* sk = skills.at(skillType);
 		sk->setStartPosition(mon->getPosition());
@@ -585,8 +593,8 @@ public:
 		sk->setIsfoward(mon->IsForward());
 		AddOrShow(map, sk);
 		sk->Start();
+		return true;
 	}
-	Map<Skills, Skill*> skills;
 private:
 	void PlayerCalculateDamage(Skill*skill)
 	{
@@ -597,7 +605,8 @@ private:
 			if (skill->IsSkillRangeCover((*monsters)[i]->getPosition()))
 			{
 				int hp = (*monsters)[i]->GetHp();
-				(*monsters)[i]->ChangeHp(hp - skill->GetDamage());
+				int rebtype = skill->getName() == std::string("atk5") ? 1 : 0;
+				(*monsters)[i]->ChangeHp(hp - skill->GetDamage(), rebtype);
 				skill->ShowDamage((*monsters)[i],i);
 			}
 		}
@@ -612,14 +621,12 @@ private:
 			player->ChangeHp(player->getHp() - hp);
 		}
 	}
-	PlayerNode* player;
-	std::vector<MonsterNode*>* monsters;
 	void AddOrShow(Layout* map,Skill* sk)
 	{
 		if (map->getChildByName(sk->getName()) == NULL)
 		{
 			map->addChild(sk);
-			sk->setZOrder(1);
+			sk->setGlobalZOrder(11);
 			sk->setVisible(true);
 		}
 		else
@@ -635,79 +642,49 @@ private:
 		frameCache->addSpriteFramesWithFile("Skill\\atk7a.plist", "Skill\\atk7a.png");
 		frameCache->addSpriteFramesWithFile("Skill\\nima.plist", "Skill\\nima.png");
 
-		Skill* atk1 = Skill_ATK1::create();
-		atk1->retain();
-		atk1->setName("atk1");
-		atk1->onEnd = [&](Skill* sk){sk->removeFromParent(); };
-		atk1->onExecuteDamage = [&](Skill* sk)
-		{
-			PlayerCalculateDamage(sk);
-		};
-		skills.insert(P_SKILL_ATK1, atk1);
+		playermaptable[O_STATE_ATK1] = P_SKILL_ATK1;
+		playermaptable[O_STATE_ATK2] = P_SKILL_ATK2;
+		playermaptable[O_STATE_ATK3] = P_SKILL_ATK3;
+		playermaptable[O_STATE_ATK4] = P_SKILL_ATK4;
+		playermaptable[O_STATE_ATK5] = P_SKILL_ATK5;
+		playermaptable[O_STATE_ATK6] = P_SKILL_ATK6;
+		playermaptable[O_STATE_ATK7] = P_SKILL_ATK7;
 
-		Skill* atk2 = Skill_ATK2::create();
-		atk2->retain();
-		atk2->setName("atk2");
-		atk2->onEnd = [&](Skill* sk){sk->removeFromParent(); };
-		atk2->onExecuteDamage = [&](Skill* sk)
-		{
-			PlayerCalculateDamage(sk);
-		};
-		skills.insert(P_SKILL_ATK2, atk2);
-
-		Skill* atk3 = Skill_ATK3::create();
-		atk3->retain();
-		atk3->setName("atk3");
-		atk3->onEnd = [&](Skill* sk){sk->removeFromParent(); };
-		atk3->onExecuteDamage = [&](Skill* sk)
-		{
-			PlayerCalculateDamage(sk);
-		};
-		skills.insert(P_SKILL_ATK3, atk3);
-
-		Skill* atk4 = Skill_ATK4::create();
-		atk4->retain();
-		atk4->setName("atk4");
-		atk4->onEnd = [&](Skill* sk){sk->removeFromParent(); };
-		atk4->onExecuteDamage = [&](Skill* sk)
-		{
-			PlayerCalculateDamage(sk);
-		};
-		skills.insert(P_SKILL_ATK4, atk4);
-
-		Skill* atk7 = Skill_ATK7::create();
-		atk7->retain();
-		atk7->setName("atk7");
-		atk7->onEnd = [&](Skill* sk){sk->removeFromParent(); };
-		atk7->onExecuteDamage = [&](Skill* sk)
-		{
-			PlayerCalculateDamage(sk);
-		};
-		skills.insert(P_SKILL_ATK7, atk7);
-
-		Skill* atk6 = Skill_ATK6::create();
-		atk6->retain();
-		atk6->setName("atk6");
-		atk6->onEnd = [&](Skill* sk){sk->removeFromParent(); };
-		atk6->onExecuteDamage = [&](Skill* sk)
-		{
-			PlayerCalculateDamage(sk);
-		};
-		skills.insert(P_SKILL_ATK6, atk6);
-
-		Skill* mons1 = Skill_Mons1::create();
-		mons1->retain();
-		mons1->setName("mons1");
-		mons1->onEnd = [&](Skill* sk){sk->removeFromParent(); };
-		mons1->onExecuteDamage = [&](Skill* sk)
-		{
-			MonsterCaculteDamage(sk);
-		};
-		skills.insert(M_SKILL_1, mons1);
-
-
-
-
+		RegisterPlayerSkill(Skill_ATK1::create(), P_SKILL_ATK1, "atk1");
+		RegisterPlayerSkill(Skill_ATK2::create(), P_SKILL_ATK2, "atk2");
+		RegisterPlayerSkill(Skill_ATK3::create(), P_SKILL_ATK3, "atk3");
+		RegisterPlayerSkill(Skill_ATK4::create(), P_SKILL_ATK4, "atk4");
+		RegisterPlayerSkill(Skill_ATK5::create(), P_SKILL_ATK5, "atk5");
+		RegisterPlayerSkill(Skill_ATK6::create(), P_SKILL_ATK6,"atk6");
+		RegisterPlayerSkill(Skill_ATK7::create(), P_SKILL_ATK7, "atk7");
+		RegisterMonsterSkill(Skill_Mons1::create(), M_SKILL_1,"mons1");
 	}
+	void RegisterPlayerSkill(Skill* atk, Skills key,std::string name)
+	{
+		atk->retain();
+		atk->setName(name);
+		atk->onEnd = [&](Skill* sk){sk->removeFromParent(); };
+		atk->onExecuteDamage = [&](Skill* sk)
+		{
+			PlayerCalculateDamage(sk);
+		};
+		skills.insert(key, atk);
+	}
+	void RegisterMonsterSkill(Skill* sk, Skills key, std::string name)
+	{
+		sk->retain();
+		sk->setName(name);
+		sk->onEnd = [&](Skill* sk1){sk1->removeFromParent(); };
+		sk->onExecuteDamage = [&](Skill* sk1)
+		{
+			MonsterCaculteDamage(sk1);
+		};
+		skills.insert(key, sk);
+	}
+private:
+	Skills playermaptable[100];
+	Map<Skills, Skill*> skills;
+	PlayerNode* player;
+	std::vector<MonsterNode*>* monsters;
 };
 #endif

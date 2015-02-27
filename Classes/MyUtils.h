@@ -7,6 +7,53 @@
 USING_NS_CC;
 USING_NS_CC::ui;
 #define  TEST 0;
+
+class FlowWord : public Node
+{
+public:
+	CREATE_FUNC(FlowWord);
+	virtual bool init()
+	{
+		m_textLab = Label::create("", "Arial", 35);
+		m_textLab->setColor(ccc3(255, 215, 0));
+		m_textLab->setAnchorPoint(ccp(0.5, 0.5));
+		m_textLab->setVisible(false);
+		m_textLab->setPosition(0, 100);
+		this->addChild(m_textLab);
+		return true;
+	}
+
+public:
+	void showWord(const char* text)
+	{
+		m_textLab->setString(text);
+		m_textLab->setVisible(true);
+		auto scaleLarge = ScaleTo::create(0.3f, 2.2f, 2.2f);
+		auto scaleSmall = ScaleTo::create(0.5f, 0.5f, 0.5f);
+		auto callFunc = CallFunc::create([&]()
+		{
+			m_textLab->setVisible(false);
+		});
+		auto actions = Sequence::create(scaleLarge, scaleSmall, callFunc, NULL);
+		m_textLab->runAction(actions);
+	}
+	void showWord2(const char* text)
+	{
+		m_textLab->setString(text);
+		m_textLab->setVisible(true);
+		auto scaleLarge = ScaleTo::create(0.3f, 1.5f, 1.5f);
+		auto scaleSmall = ScaleTo::create(0.5f, 0.5f, 0.5f);
+		m_textLab->setColor(ccc3(255, 255,255));
+		auto callFunc = CallFunc::create([&]()
+		{
+			m_textLab->setVisible(false);
+		});
+		auto actions = Sequence::create(scaleLarge, scaleSmall, callFunc, NULL);
+		m_textLab->runAction(actions);
+	}
+private:
+	Label* m_textLab;
+};
 class Tools
 {
 public:
@@ -125,6 +172,20 @@ public:
 		float delta = -(sz.width - 2 * p.x*sz.width);
 		node->setFlippedX(true);
 		node->setPositionX(posX+delta);
+	}
+
+	static void ShowTempAnimation(const char* name, float delay, int iLoops, Node* parent,Point pos)
+	{
+	/*	Sprite* sp1a = Sprite::create("Sprites//reimu.png");
+		sp1a->setAnchorPoint(Point(0.5, 0.5));
+		sp1a->set
+		this->addChild(sp1a);
+		Animation* pATK5a = Tools::createWithSingleFrameName(name, delay, iLoops);
+		Action* ac = Sequence::create(Animate::create(pATK5a), CallFuncN::create([=](Node* sp)
+		{
+			sp->removeFromParentAndCleanup(true);
+		}), NULL);
+		sp1a->runAction(ac);*/
 	}
 
 };

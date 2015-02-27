@@ -20,12 +20,12 @@ public:
 		auto director = Director::getInstance();
 		auto glview = director->getOpenGLView();
 		if (!glview) {
-			glview = GLViewImpl::create("My Game");
+			glview = GLViewImpl::create("Homework-cocos2dx-Chenyuexi");
 			director->setOpenGLView(glview);
 		}
 		director->setDisplayStats(true);
 		director->setAnimationInterval(1.0 / 60);
-		director->runWithScene(Scenes::GetMainScene());
+		director->runWithScene(Scenes::GetStartScene());
 		return true;
 	}
     virtual void applicationDidEnterBackground()

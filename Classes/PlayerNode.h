@@ -38,7 +38,6 @@ public:
 	PlayerNode() : ac_stand(NULL), ac_forward(NULL), ac_hurt(NULL), ac_dead(NULL), ac_win(NULL), ac_defend(NULL), ac_welcome(NULL),
 		ac_atk1(NULL), ac_atk2(NULL), ac_atk3(NULL), ac_atk4(NULL), ac_atk5(NULL), ac_atk6(NULL), ac_atk7(NULL)
 	{
-		
 	}
 	~PlayerNode()
 	{
@@ -201,6 +200,11 @@ public:
 		if (onMpChanged != NULL)
 			onMpChanged(this);
 	}
+	void ShowMessage(std::string msg)
+	{
+		FlowWord* flow = (FlowWord*)this->getChildByName("flow");
+		flow->showWord2(msg.c_str());
+	}
 public:
 	std::function<void(PlayerNode*,OnceState)> onOnceStateChanged;
 	std::function<void(PlayerNode*)> onHpChanged;
@@ -208,6 +212,7 @@ public:
 	std::function<void(PlayerNode*)> onWelcomeEnd;
 	std::function<void(PlayerNode*)> onWinEnd;
 	std::function<void(PlayerNode*)> onDeadEnd;
+	std::function<bool(PlayerNode*, OnceState)> onATKReadyChecked;
 protected:
 	void InitDefaultParms()
 	{
@@ -218,7 +223,11 @@ protected:
 	void InitComponents()
 	{
 		this->initWithFile("Sprites//reimud.png");
-
+		FlowWord* flow = FlowWord::create();
+		flow->setName("flow");
+		flow->setAnchorPoint(ccp(0.5, 0.5));
+		flow->setPosition(190, 100);
+		this->addChild(flow);
 	}
 	void InitEventHandlers()
 	{
@@ -278,7 +287,7 @@ protected:
 	{
 		if (this->mp < maxmp)
 		{
-			this->mp += 2;
+			this->mp += 1;
 			if (mp>maxmp)
 				mp = maxmp;
 			if (onMpChanged != NULL)
@@ -290,7 +299,7 @@ private:
 	{
 		if (keyCode == EventKeyboard::KeyCode::KEY_Z)
 		{
-			if (!InOAction())
+			if (!InOAction() && AttackChecked(O_STATE_ATK1))
 			{
 				curOState = O_STATE_ATK1;
 				StartATK1();
@@ -299,7 +308,7 @@ private:
 		}
 		if (keyCode == EventKeyboard::KeyCode::KEY_X)
 		{
-			if (!InOAction())
+			if (!InOAction() && AttackChecked(O_STATE_ATK2))
 			{
 				curOState = O_STATE_ATK2;
 				StartATK2();
@@ -308,7 +317,7 @@ private:
 		}
 		if (keyCode == EventKeyboard::KeyCode::KEY_C)
 		{
-			if (!InOAction())
+			if (!InOAction() && AttackChecked(O_STATE_ATK3))
 			{
 				curOState = O_STATE_ATK3;
 				StartATK3();
@@ -317,7 +326,7 @@ private:
 		}
 		if (keyCode == EventKeyboard::KeyCode::KEY_A)
 		{
-			if (!InOAction())
+			if (!InOAction() && AttackChecked(O_STATE_ATK4))
 			{
 				curOState = O_STATE_ATK4;
 				StartATK4();
@@ -326,7 +335,7 @@ private:
 		}
 		if (keyCode == EventKeyboard::KeyCode::KEY_S)
 		{
-			if (!InOAction())
+			if (!InOAction() && AttackChecked(O_STATE_ATK5))
 			{
 				curOState = O_STATE_ATK5;
 				StartATK5();
@@ -335,7 +344,7 @@ private:
 		}
 		if (keyCode == EventKeyboard::KeyCode::KEY_D)
 		{
-			if (!InOAction())
+			if (!InOAction() && AttackChecked(O_STATE_ATK6))
 			{
 				curOState = O_STATE_ATK6;
 				StartATK6();
@@ -344,7 +353,7 @@ private:
 		}
 		if (keyCode == EventKeyboard::KeyCode::KEY_Q)
 		{
-			if (!InOAction())
+			if (!InOAction() && AttackChecked(O_STATE_ATK7))
 			{
 				curOState = O_STATE_ATK7;
 				StartATK7();
@@ -644,6 +653,13 @@ private:
 			return true;
 		return false;
 	}
+	bool AttackChecked(OnceState state)
+	{
+		if (onATKReadyChecked != NULL)
+			return onATKReadyChecked(this, state);
+		else
+			return true;
+	}
 	void CheckFlip()
 	{
 		if (InOAction())
@@ -657,6 +673,7 @@ private:
 			this->setFlippedX(true);
 		}
 	}
+
 private:
 	CC_SYNTHESIZE_RETAIN(Action*, ac_stand, StandAction);
 	CC_SYNTHESIZE_RETAIN(Action*, ac_forward, ForwardAction);

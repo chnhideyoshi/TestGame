@@ -10,39 +10,6 @@ USING_NS_CC;
 USING_NS_CC::ui;
 using namespace cocostudio::timeline;
 
-class FlowWord : public Node 
-{
-public:
-	CREATE_FUNC(FlowWord);
-	virtual bool init()
-	{
-		m_textLab = Label::create("", "Arial", 35);
-		m_textLab->setColor(ccc3(255, 215, 0));
-		m_textLab->setAnchorPoint(ccp(0.5,0.5));
-		m_textLab->setVisible(false);
-		m_textLab->setPosition(0, 100);
-		this->addChild(m_textLab);
-		return true;
-	}
-
-public:
-	void showWord(const char* text)
-	{
-		m_textLab->setString(text);
-		m_textLab->setVisible(true);
-		auto scaleLarge = ScaleTo::create(0.3f, 2.2f, 2.2f);
-		auto scaleSmall = ScaleTo::create(0.5f, 0.5f, 0.5f);
-		auto callFunc = CallFunc::create([&]()
-		{
-			m_textLab->setVisible(false);
-		});
-		auto actions = Sequence::create(scaleLarge, scaleSmall, callFunc, NULL);
-		m_textLab->runAction(actions);
-	}
-private:
-	Label* m_textLab;
-};
-
 typedef enum {
 	ACTION_STATE_NONE = 0,
 	ACTION_STATE_IDLE,
@@ -91,7 +58,14 @@ public:
 	{
 		this->target = target;
 	}
-	virtual void ChangeHp(int hp)
+	virtual void SetMovementRange(int minX,int maxX,int minY,int maxY)
+	{
+		this->movementXBound[0] = minX;
+		this->movementXBound[1] = maxX;
+		this->movementYBound[0] = minY;
+		this->movementYBound[1] = maxY;
+	}
+	virtual void ChangeHp(int hp,int reboundType)
 	{
 		if (hp < 0)
 			hp = 0;
@@ -101,7 +75,7 @@ public:
 		{
 			if (hp != 0)
 			{
-				Rebound(curHp-hp);
+				Rebound(curHp - hp, reboundType);
 				StartHurt();
 				GetFlowWord()->showWord(Value(hp - curHp).asString().c_str());
 			}
@@ -111,6 +85,10 @@ public:
 			}
 		}
 		this->SetHp(hp);
+	}
+	virtual void SetSpeed(float speed)
+	{
+		this->speedrate = speed;
 	}
 	virtual bool IsForward()
 	{
@@ -122,6 +100,8 @@ public:
 	}
 	virtual void update(float delta)
 	{
+		if (GetMonsterSprite() == NULL)
+			return;
 		if (enableTargetSeeking&&!inATK)
 		{
 			CheckFilp();
@@ -142,6 +122,8 @@ public:
 public:
 	virtual Sprite* GetMonsterSprite()
 	{
+		if (rootNode->getChildrenCount() == 0)
+			return NULL;
 		return (Sprite*)rootNode->getChildByName("sp");
 	}
 	virtual FlowWord* GetFlowWord()
@@ -174,7 +156,25 @@ public:
 	}
 	virtual void InitComponents()
 	{
-	
+		rootNode = Node::create();
+		rootNode->setAnchorPoint(Point(0.5, 0.5));
+		rootNode->setPosition(0, 0);
+		this->addChild(rootNode);
+		LoadingBar* lb = LoadingBar::create();
+		lb->setSize(Size(100, 10));
+		lb->setPercent(100);
+		lb->setPosition(ccp(0, 61));
+		lb->setScaleX(0.6);
+		lb->setScaleY(0.44);
+		lb->setAnchorPoint(ccp(0.5, 0.5));
+		lb->loadTexture("Mons/hps.png");
+		lb->setName("lb");
+		rootNode->addChild(lb);
+				
+		FlowWord* fl = FlowWord::create();
+		fl->setName("FLWord");
+		fl->setPosition(0, 0);
+		this->addChild(fl);
 	}
 	virtual void InitAnimations()
 	{
@@ -276,15 +276,35 @@ public:
 		bool isOnTargetLeft = (getPositionX() < target->getPositionX() ? true : false);
 		GetMonsterSprite()->setFlippedX(!isOnTargetLeft);
 	}
-	virtual void Rebound(int deltaHp)
+	virtual void Rebound(int deltaHp,int reboundType)
 	{
-		this->stopAllActions();
-		float leng = deltaHp/10;
-		Point t = target->getPosition();
-		Point p = this->getPosition();
-		float len = t.distance(p);
-		Vec2 delta((p.x - t.x)*leng / len, (p.y - t.y)*leng / len);
-		this->runAction(MoveBy::create(0.1f, Point(delta.x, delta.y)));
+		if (reboundType == 0)
+		{
+			this->stopAllActions();
+			float leng = deltaHp / 8;
+			Point t = target->getPosition();
+			Point p = this->getPosition();
+			float len = t.distance(p);
+			if (len != 0)
+			{
+				Vec2 delta((p.x - t.x)*leng / len, (p.y - t.y)*leng / len);
+				if (delta.y + p.y > movementYBound[1])
+				{
+					float rate = abs(p.y - movementYBound[1]) / abs(delta.y);
+					delta *= rate;
+				}
+				if (delta.y + p.y < movementYBound[0])
+				{
+					float rate = abs(p.y - movementYBound[0]) / abs(delta.y);
+					delta *= rate;
+				}
+				this->runAction(MoveBy::create(0.1f, Point(delta.x, delta.y)));
+			}
+			else
+			{
+				this->runAction(MoveBy::create(0.1f, Point(100, 0)));
+			}	
+		}
 	}
 	virtual bool IsInmove()
 	{
@@ -324,6 +344,8 @@ protected:
 	float speedrate;
 	float intervalTime_ATK;
 	float cumlativeTime_ATK;
+	int movementXBound[2];
+	int movementYBound[2];
 };
 
 class Monster_1 :public MonsterNode
@@ -336,34 +358,16 @@ protected:
 	virtual void InitDefaultParms()
 	{
 		MonsterNode::InitDefaultParms();
-		this->speedrate = 1;
+		this->speedrate = 0.8;
 	}
 	virtual void InitComponents()
 	{
 		MonsterNode::InitComponents();
-		rootNode = Node::create();
 		Sprite* sp = Sprite::create("Mons//mons1d.png");
 		sp->setContentSize(Size(88, 101));
 		sp->setName("sp");
 		sp->setAnchorPoint(ccp(0.5, 0.5));
 		rootNode->addChild(sp);
-		LoadingBar* lb = LoadingBar::create();
-		lb->setSize(Size(100, 10));
-		lb->setPercent(100);
-		lb->setPosition(ccp(0, 61));
-		lb->setScaleX(0.6);
-		lb->setScaleY(0.44);
-		lb->setAnchorPoint(ccp(0.5, 0.5));
-		lb->loadTexture("Mons/hps.png");
-		lb->setName("lb");
-		rootNode->addChild(lb);
-		rootNode->setAnchorPoint(Point(0.5, 0.5));
-		rootNode->setPosition(0, 0);
-		this->addChild(rootNode);
-		FlowWord* fl = FlowWord::create();
-		fl->setName("FLWord");
-		fl->setPosition(0, 0);
-		this->addChild(fl);
 #if TEST
 		Tools::CreateRectPanel(GetMonsterSprite()->getBoundingBox(), Color3B(0, 255, 0), 30, this);
 #endif
@@ -399,34 +403,16 @@ protected:
 	virtual void InitDefaultParms()
 	{
 		MonsterNode::InitDefaultParms();
-		speedrate = 0.5;
+		speedrate = 1;
 	}
 	virtual void InitComponents()
 	{
 		MonsterNode::InitComponents();
-		rootNode = Node::create();
 		Sprite* sp = Sprite::create("Mons//mons2d.png");
 		sp->setContentSize(Size(88, 101));
 		sp->setName("sp");
 		sp->setAnchorPoint(ccp(0.5, 0.5));
 		rootNode->addChild(sp);
-		LoadingBar* lb = LoadingBar::create();
-		lb->setSize(Size(100, 10));
-		lb->setPercent(100);
-		lb->setPosition(ccp(0, 61));
-		lb->setScaleX(0.6);
-		lb->setScaleY(0.44);
-		lb->setAnchorPoint(ccp(0.5, 0.5));
-		lb->loadTexture("Mons/hps.png");
-		lb->setName("lb");
-		rootNode->addChild(lb);
-		rootNode->setAnchorPoint(Point(0.5, 0.5));
-		rootNode->setPosition(0, 0);
-		this->addChild(rootNode);
-		FlowWord* fl = FlowWord::create();
-		fl->setName("FLWord");
-		fl->setPosition(0, 0);
-		this->addChild(fl);
 #if TEST
 		Tools::CreateRectPanel(GetMonsterSprite()->getBoundingBox(), Color3B(0, 255, 0), 30, this);
 #endif
@@ -467,29 +453,11 @@ protected:
 	virtual void InitComponents()
 	{
 		MonsterNode::InitComponents();
-		rootNode = Node::create();
 		Sprite* sp = Sprite::create("Mons//mons3d.png");
 		sp->setContentSize(Size(88, 101));
 		sp->setName("sp");
 		sp->setAnchorPoint(ccp(0.5, 0.5));
 		rootNode->addChild(sp);
-		LoadingBar* lb = LoadingBar::create();
-		lb->setSize(Size(100, 10));
-		lb->setPercent(100);
-		lb->setPosition(ccp(0, 61));
-		lb->setScaleX(0.6);
-		lb->setScaleY(0.44);
-		lb->setAnchorPoint(ccp(0.5, 0.5));
-		lb->loadTexture("Mons/hps.png");
-		lb->setName("lb");
-		rootNode->addChild(lb);
-		rootNode->setAnchorPoint(Point(0.5, 0.5));
-		rootNode->setPosition(0, 0);
-		this->addChild(rootNode);
-		FlowWord* fl = FlowWord::create();
-		fl->setName("FLWord");
-		fl->setPosition(0, 0);
-		this->addChild(fl);
 #if TEST
 		Tools::CreateRectPanel(GetMonsterSprite()->getBoundingBox(), Color3B(0, 255, 0), 30, this);
 #endif

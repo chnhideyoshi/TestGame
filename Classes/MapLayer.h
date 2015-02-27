@@ -77,7 +77,7 @@ private:
 		NavigatorLayer *layn = NavigatorLayer::create();
 		layn->setName("LY_Navigator");
 		this->addChild(layn);
-		//CocosDenshion::SimpleAudioEngine::sharedEngine()->playBackgroundMusic("Sound//map1.mp3",true);
+		CocosDenshion::SimpleAudioEngine::sharedEngine()->playBackgroundMusic("Sound//map1.mp3",true);
 
 	}
 	void InitPlayer()
@@ -93,7 +93,7 @@ private:
 		player->setMaxMp(1000);
 		player->setHp(player->getMaxHp());
 		player->setMp(0);
-		player->setZOrder(1);
+		player->setGlobalZOrder(10);
 		
 		GetNavigator()->SetHpValue(player->getHp());
 		GetNavigator()->SetMpValue(0);
@@ -121,45 +121,53 @@ private:
 		{
 			Lose();
 		};
+		player->onATKReadyChecked = [&](PlayerNode*node, OnceState newstate)
+		{
+			bool ret = skManager.GetChecked(node, newstate);
+			if (!ret)
+				node->ShowMessage("MP NOT READY..");
+			return ret;
+		};
 		player->onWelcomeEnd = [&](PlayerNode*)
 		{
 
 		};
 		player->onOnceStateChanged = [&](PlayerNode* sender,OnceState newstate)
 		{
+			bool ret = false;
 			if (newstate == O_STATE_ATK1)
 			{
-				skManager.PlayerExecuteSkill(sender,P_SKILL_ATK1, GetMapPanel());
+				ret=skManager.PlayerExecuteSkill(sender,P_SKILL_ATK1, GetMapPanel());
 			}
 			if (newstate == O_STATE_ATK2)
 			{
-				skManager.PlayerExecuteSkill(sender, P_SKILL_ATK2, GetMapPanel());
+				ret = skManager.PlayerExecuteSkill(sender, P_SKILL_ATK2, GetMapPanel());
 			}
 			if (newstate == O_STATE_ATK3)
 			{
-				skManager.PlayerExecuteSkill(sender, P_SKILL_ATK3, GetMapPanel());
+				ret = skManager.PlayerExecuteSkill(sender, P_SKILL_ATK3, GetMapPanel());
 			}
 			if (newstate == O_STATE_ATK4)
 			{
-				skManager.PlayerExecuteSkill(sender, P_SKILL_ATK4, GetMapPanel());
+				ret = skManager.PlayerExecuteSkill(sender, P_SKILL_ATK4, GetMapPanel());
 			}
 			if (newstate == O_STATE_ATK5)
 			{
-				skManager.PlayerExecuteSkill(sender, P_SKILL_ATK5, GetMapPanel());
+				ret = skManager.PlayerExecuteSkill(sender, P_SKILL_ATK5, GetMapPanel());
 			}
 			if (newstate == O_STATE_ATK6)
 			{
-				skManager.PlayerExecuteSkill(sender, P_SKILL_ATK6, GetMapPanel());
+				ret = skManager.PlayerExecuteSkill(sender, P_SKILL_ATK6, GetMapPanel());
 			}
 			if (newstate == O_STATE_ATK7)
 			{
-				skManager.PlayerExecuteSkill(sender, P_SKILL_ATK7, GetMapPanel());
+				ret = skManager.PlayerExecuteSkill(sender, P_SKILL_ATK7, GetMapPanel());
 			}
 		};
 	}
 	void InitMonsters()
 	{
-		int count =3;
+		int count =7;
 		std::vector<Point> vec;
 		Size sz = this->GetMapPanel()->getContentSize();
 		Tools::GetRandPointsInRect(1, movementYBound[0], sz.width - 1, movementYBound[1]-100, count, vec);
@@ -168,6 +176,8 @@ private:
 			MonsterNode* mon;
 			mon = CreateMonster(i%3);
 			mon->setPosition(vec[i]);
+			mon->setGlobalZOrder(5);
+			mon->SetMovementRange(0, GetMapPanel()->getContentSize().width - 5, movementYBound[0], movementYBound[1]);
 			GetMapPanel()->addChild(mon);
 			monsters.push_back(mon);
 		}
@@ -233,9 +243,6 @@ private:
 
 		ConsoleLayer::GetConsoleInstance()->AddWatchingValue("monPos", Value("default"), "monPos");
 		NotificationCenter::getInstance()->addObserver(this, SEL_CallFuncO(&MapLayer::onWatch_monPos), "monPos", NULL);
-
-		ConsoleLayer::GetConsoleInstance()->AddWatchingValue("skillPos", Value("default"), "skillPos");
-		NotificationCenter::getInstance()->addObserver(this, SEL_CallFuncO(&MapLayer::onWatch_skillPos), "skillPos", NULL);
 	}
 	void onWatch_curLState(Ref* sender)
 	{
@@ -256,11 +263,6 @@ private:
 	void onWatch_monPos(Ref* sender)
 	{
 		WatchItem* item = (WatchItem*)sender; item->value = Value(StringUtils::format("[%.2f,%.2f]", monsters[0]->getPositionX(), monsters[0]->getPositionY()));
-	}
-	void onWatch_skillPos(Ref* sender)
-	{
-		Skill* k = skManager.skills.at(M_SKILL_1);
-		WatchItem* item = (WatchItem*)sender; item->value = Value(StringUtils::format("[%.2f,%.2f]", k->getPositionX(), k->getPositionY()));
 	}
 	void ManagePlayerMovement()
 	{
@@ -297,8 +299,11 @@ private:
 	
 	void Win()
 	{
+		CocosDenshion::SimpleAudioEngine::sharedEngine()->stopBackgroundMusic(true);
 		if (onMapEnd != nullptr)
+		{
 			onMapEnd(true);
+		}
 	}
 	void Lose()
 	{
