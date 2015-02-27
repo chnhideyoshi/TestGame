@@ -99,12 +99,12 @@ private:
 		GetNavigator()->SetMpValue(0);
 		GetNavigator()->SetHpPercentage(player->getHp() * 100 / player->getMaxHp());
 		GetNavigator()->SetMpPercentage(0);
-		player->onMpChanged = [&](PlayerNode* sender)
+		player->MpChanged = [&](PlayerNode* sender)
 		{
 			GetNavigator()->SetMpValue(sender->getMp());
 			GetNavigator()->SetMpPercentage(sender->getMp()*100/sender->getMaxMp());
 		};
-		player->onHpChanged = [&](PlayerNode* sender)
+		player->HpChanged = [&](PlayerNode* sender)
 		{
 			GetNavigator()->SetHpValue(sender->getHp());
 			GetNavigator()->SetHpPercentage(sender->getHp() * 100 / sender->getMaxHp());
@@ -113,57 +113,59 @@ private:
 				sender->SetOnceState(O_STATE_DEAD);
 			}
 		};
-		player->onWinEnd = [&](PlayerNode*)
+		player->WinEnd = [&](PlayerNode*)
 		{
 			Win();
 		};
-		player->onDeadEnd = [&](PlayerNode*)
+		player->DeadEnd = [&](PlayerNode*)
 		{
 			Lose();
 		};
-		player->onATKReadyChecked = [&](PlayerNode*node, OnceState newstate)
+		player->ATKReadyChecked = [&](PlayerNode*node, PlayerOnceState newstate)
 		{
 			bool ret = skManager.GetChecked(node, newstate);
 			if (!ret)
 				node->ShowMessage("MP NOT READY..");
 			return ret;
 		};
-		player->onWelcomeEnd = [&](PlayerNode*)
+		player->WelcomeEnd = [&](PlayerNode*)
 		{
 
 		};
-		player->onOnceStateChanged = [&](PlayerNode* sender,OnceState newstate)
+		player->OnceStateChanged = [&](PlayerNode* sender,PlayerOnceState newstate)
 		{
 			bool ret = false;
 			if (newstate == O_STATE_ATK1)
 			{
-				ret=skManager.PlayerExecuteSkill(sender,P_SKILL_ATK1, GetMapPanel());
+				ret=skManager.PlayerExecuteSkill(sender,PLAYER_SKILL_ATK1, GetMapPanel());
 			}
 			if (newstate == O_STATE_ATK2)
 			{
-				ret = skManager.PlayerExecuteSkill(sender, P_SKILL_ATK2, GetMapPanel());
+				ret = skManager.PlayerExecuteSkill(sender, PLAYER_SKILL_ATK2, GetMapPanel());
 			}
 			if (newstate == O_STATE_ATK3)
 			{
-				ret = skManager.PlayerExecuteSkill(sender, P_SKILL_ATK3, GetMapPanel());
+				ret = skManager.PlayerExecuteSkill(sender, PLAYER_SKILL_ATK3, GetMapPanel());
 			}
 			if (newstate == O_STATE_ATK4)
 			{
-				ret = skManager.PlayerExecuteSkill(sender, P_SKILL_ATK4, GetMapPanel());
+				ret = skManager.PlayerExecuteSkill(sender, PLAYER_SKILL_ATK4, GetMapPanel());
 			}
 			if (newstate == O_STATE_ATK5)
 			{
-				ret = skManager.PlayerExecuteSkill(sender, P_SKILL_ATK5, GetMapPanel());
+				ret = skManager.PlayerExecuteSkill(sender, PLAYER_SKILL_ATK5, GetMapPanel());
 			}
 			if (newstate == O_STATE_ATK6)
 			{
-				ret = skManager.PlayerExecuteSkill(sender, P_SKILL_ATK6, GetMapPanel());
+				ret = skManager.PlayerExecuteSkill(sender, PLAYER_SKILL_ATK6, GetMapPanel());
 			}
 			if (newstate == O_STATE_ATK7)
 			{
-				ret = skManager.PlayerExecuteSkill(sender, P_SKILL_ATK7, GetMapPanel());
+				ret = skManager.PlayerExecuteSkill(sender, PLAYER_SKILL_ATK7, GetMapPanel());
 			}
 		};
+
+		Tools::ShowTempAnimation("sk2_", 0.1, 1, this, GetCenter(),ScaleTo::create(0.5,3));
 	}
 	void InitMonsters()
 	{
@@ -195,11 +197,11 @@ private:
 		monster->setAnchorPoint(ccp(0.5, 0.5));
 		monster->SetEnableTargetSeeking(true);
 		monster->SetTargetNode(this->GetPlayerSprite());
-		monster->onAttak = [&](MonsterNode* mon)
+		monster->Attack = [&](MonsterNode* mon)
 		{
-			skManager.MonsterExecuteSkill(mon, M_SKILL_1, GetMapPanel());
+			skManager.MonsterExecuteSkill(mon, MONSTER_SKILL_1, GetMapPanel());
 		};
-		monster->onDead = [&](MonsterNode* mon)
+		monster->Dead = [&](MonsterNode* mon)
 		{
 			for (size_t i = 0; i < monsters.size(); i++)
 			{
@@ -307,6 +309,7 @@ private:
 	}
 	void Lose()
 	{
+		CocosDenshion::SimpleAudioEngine::sharedEngine()->stopBackgroundMusic(true);
 		if (onMapEnd != nullptr)
 			onMapEnd(false);
 	}

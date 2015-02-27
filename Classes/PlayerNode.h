@@ -9,7 +9,7 @@
 
 USING_NS_CC;
 USING_NS_CC::ui;
-enum OnceState
+enum PlayerOnceState
 {
 	O_STATE_NONE = 10,
 	O_STATE_ATK1,
@@ -24,7 +24,7 @@ enum OnceState
 	O_STATE_WELOME,
 	O_STATE_WIN
 };
-enum LastingState
+enum PlayerLastingState
 {
 	L_STATE_STAND=0,
 	L_STATE_FORWARD,
@@ -100,11 +100,11 @@ public:
 #endif
 		
 	}
-	LastingState GetLastingState()
+	PlayerLastingState GetLastingState()
 	{
 		return curLState;
 	}
-	OnceState GetOnceState()
+	PlayerOnceState GetOnceState()
 	{
 		return curOState;
 	}
@@ -116,7 +116,7 @@ public:
 	{
 		return curDirection.x != 0 || curDirection.y != 0;
 	}
-	void SetLastingState(LastingState state)
+	void SetLastingState(PlayerLastingState state)
 	{
 		this->curLState = state;
 		if (!InOAction())
@@ -129,7 +129,7 @@ public:
 				BecomeDefend();
 		}
 	}
-	void SetOnceState(OnceState state)
+	void SetOnceState(PlayerOnceState state)
 	{
 		curOState = state;
 		if (state == O_STATE_ATK1)
@@ -166,12 +166,12 @@ public:
 			if (hp < 0)
 				hp = 0;
 			this->setHp(hp);
-			if (onHpChanged != NULL)
-				onHpChanged(this);
+			if (HpChanged != NULL)
+				HpChanged(this);
 			if (hp == 0)
 			{
-				if (onOnceStateChanged != NULL)
-					onOnceStateChanged(this, O_STATE_DEAD);
+				if (OnceStateChanged != NULL)
+					OnceStateChanged(this, O_STATE_DEAD);
 			}
 			else
 			{
@@ -184,8 +184,8 @@ public:
 			if (hp > maxhp)
 				hp = maxhp;
 			this->setHp(hp);
-			if (onHpChanged != NULL)
-				onHpChanged(this);
+			if (HpChanged != NULL)
+				HpChanged(this);
 		}
 	}
 	void ChangeMp(int mp)
@@ -197,8 +197,8 @@ public:
 		if (mp < 0)
 			mp = 0;
 		this->setMp(mp);
-		if (onMpChanged != NULL)
-			onMpChanged(this);
+		if (MpChanged != NULL)
+			MpChanged(this);
 	}
 	void ShowMessage(std::string msg)
 	{
@@ -206,13 +206,13 @@ public:
 		flow->showWord2(msg.c_str());
 	}
 public:
-	std::function<void(PlayerNode*,OnceState)> onOnceStateChanged;
-	std::function<void(PlayerNode*)> onHpChanged;
-	std::function<void(PlayerNode*)> onMpChanged;
-	std::function<void(PlayerNode*)> onWelcomeEnd;
-	std::function<void(PlayerNode*)> onWinEnd;
-	std::function<void(PlayerNode*)> onDeadEnd;
-	std::function<bool(PlayerNode*, OnceState)> onATKReadyChecked;
+	std::function<void(PlayerNode*,PlayerOnceState)> OnceStateChanged;
+	std::function<void(PlayerNode*)> HpChanged;
+	std::function<void(PlayerNode*)> MpChanged;
+	std::function<void(PlayerNode*)> WelcomeEnd;
+	std::function<void(PlayerNode*)> WinEnd;
+	std::function<void(PlayerNode*)> DeadEnd;
+	std::function<bool(PlayerNode*, PlayerOnceState)> ATKReadyChecked;
 protected:
 	void InitDefaultParms()
 	{
@@ -282,6 +282,7 @@ protected:
 
 		Animation* pDeadAnim = Tools::createWithSingleFrameName("reimu_dead_", 0.1f, 1);
 		this->setDeadAction(Sequence::create(Animate::create(pDeadAnim), Blink::create(3, 9), CallFunc::create(this, SEL_CallFunc(&PlayerNode::onEndDead)), NULL));
+
 	}
 	void onRecoverMp()
 	{
@@ -290,8 +291,8 @@ protected:
 			this->mp += 1;
 			if (mp>maxmp)
 				mp = maxmp;
-			if (onMpChanged != NULL)
-				onMpChanged(this);
+			if (MpChanged != NULL)
+				MpChanged(this);
 		}
 	}
 private:
@@ -473,87 +474,87 @@ private:
 	{
 		this->stopAllActions();
 		this->runAction(ac_atk1);
-		if (onOnceStateChanged != NULL)
-			onOnceStateChanged(this, O_STATE_ATK1);
+		if (OnceStateChanged != NULL)
+			OnceStateChanged(this, O_STATE_ATK1);
 		
 	}
 	void StartATK2()
 	{
 		this->stopAllActions();
 		this->runAction(ac_atk2);
-		if (onOnceStateChanged != NULL)
-			onOnceStateChanged(this, O_STATE_ATK2);
+		if (OnceStateChanged != NULL)
+			OnceStateChanged(this, O_STATE_ATK2);
 	}
 	void StartATK3()
 	{
 		this->stopAllActions();
 		this->runAction(ac_atk3);
-		if (onOnceStateChanged != NULL)
-			onOnceStateChanged(this, O_STATE_ATK3);
+		if (OnceStateChanged != NULL)
+			OnceStateChanged(this, O_STATE_ATK3);
 		
 	}
 	void StartATK4()
 	{
 		this->stopAllActions();
 		this->runAction(ac_atk4);
-		if (onOnceStateChanged != NULL)
-			onOnceStateChanged(this, O_STATE_ATK4);
+		if (OnceStateChanged != NULL)
+			OnceStateChanged(this, O_STATE_ATK4);
 		
 	}
 	void StartATK5()
 	{
 		this->stopAllActions();
 		this->runAction(ac_atk5);
-		if (onOnceStateChanged != NULL)
-			onOnceStateChanged(this, O_STATE_ATK5);
+		if (OnceStateChanged != NULL)
+			OnceStateChanged(this, O_STATE_ATK5);
 		
 	}
 	void StartATK6()
 	{
 		this->stopAllActions();
 		this->runAction(ac_atk6);
-		if (onOnceStateChanged != NULL)
-			onOnceStateChanged(this, O_STATE_ATK6);
+		if (OnceStateChanged != NULL)
+			OnceStateChanged(this, O_STATE_ATK6);
 		
 	}
 	void StartATK7()
 	{
 		this->stopAllActions();
 		this->runAction(ac_atk7);
-		if (onOnceStateChanged != NULL)
-			onOnceStateChanged(this, O_STATE_ATK7);
+		if (OnceStateChanged != NULL)
+			OnceStateChanged(this, O_STATE_ATK7);
 	
 	}
 	void StartHurt()
 	{
 		this->stopAllActions();
 		this->runAction(ac_hurt);
-		if (onOnceStateChanged != NULL)
-			onOnceStateChanged(this, O_STATE_HURT);
+		if (OnceStateChanged != NULL)
+			OnceStateChanged(this, O_STATE_HURT);
 		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Sound//hurt.wav");
 	}
 	void StartDead()
 	{
 		this->stopAllActions();
 		this->runAction(ac_dead);
-		if (onOnceStateChanged != NULL)
-			onOnceStateChanged(this, O_STATE_DEAD);
+		if (OnceStateChanged != NULL)
+			OnceStateChanged(this, O_STATE_DEAD);
 		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Sound//dead.wav");
 	}
 	void StartWelcome()
 	{
 		this->stopAllActions();
 		this->runAction(ac_welcome);
-		if (onOnceStateChanged != NULL)
-			onOnceStateChanged(this, O_STATE_WELOME);
+		if (OnceStateChanged != NULL)
+			OnceStateChanged(this, O_STATE_WELOME);
 		//CocosDenshion::SimpleAudioEngine::sharedEngine()->playEffect("Sound//dead.wav");
 	}
 	void StartWin()
 	{
 		this->stopAllActions();
 		this->runAction(ac_win);
-		if (onOnceStateChanged != NULL)
-			onOnceStateChanged(this, O_STATE_WIN);
+		if (OnceStateChanged != NULL)
+			OnceStateChanged(this, O_STATE_WIN);
 		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Sound//win.wav");
 	}
 	void onEndATK1()
@@ -599,21 +600,21 @@ private:
 	void onEndDead()
 	{
 		curOState = O_STATE_NONE;
-		if (onDeadEnd != NULL)
-			onDeadEnd(this);
+		if (DeadEnd != NULL)
+			DeadEnd(this);
 	}
 	void onEndWelcome()
 	{
 		curOState = O_STATE_NONE;
 		onBackToLastingState();
-		if (onWelcomeEnd != NULL)
-			onWelcomeEnd(this);
+		if (WelcomeEnd != NULL)
+			WelcomeEnd(this);
 	}
 	void onEndWin()
 	{
 		curOState = O_STATE_NONE;
-		if (onWinEnd != NULL)
-			onWinEnd(this);
+		if (WinEnd != NULL)
+			WinEnd(this);
 	}
 	void onBackToLastingState()
 	{
@@ -653,10 +654,10 @@ private:
 			return true;
 		return false;
 	}
-	bool AttackChecked(OnceState state)
+	bool AttackChecked(PlayerOnceState state)
 	{
-		if (onATKReadyChecked != NULL)
-			return onATKReadyChecked(this, state);
+		if (ATKReadyChecked != NULL)
+			return ATKReadyChecked(this, state);
 		else
 			return true;
 	}
@@ -689,8 +690,9 @@ private:
 	CC_SYNTHESIZE_RETAIN(Action*, ac_defend, DefendAction);
 	CC_SYNTHESIZE_RETAIN(Action*, ac_hurt, HurtAction);
 	CC_SYNTHESIZE_RETAIN(Action*, ac_dead, DeadAction);
-	OnceState curOState;
-	LastingState curLState;
+	Map<PlayerOnceState, Action*> onceMap;
+	PlayerOnceState curOState;
+	PlayerLastingState curLState;
 	Point directionStack[2];
 	Point curDirection;
 	bool isDefend;

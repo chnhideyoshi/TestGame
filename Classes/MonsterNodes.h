@@ -8,7 +8,6 @@
 
 USING_NS_CC;
 USING_NS_CC::ui;
-using namespace cocostudio::timeline;
 
 typedef enum {
 	ACTION_STATE_NONE = 0,
@@ -18,9 +17,9 @@ typedef enum {
 	ACTION_STATE_HURT,
 	ACTION_STATE_DEAD,
 	ACTION_STATE_REMOVE,
-}ActionState;
+}MonsterActionState;
 
-class MonsterNode:public Node
+class MonsterNode :public Node
 {
 public:
 	MonsterNode() :
@@ -49,7 +48,7 @@ public:
 		this->InitEventHandlers();
 		this->scheduleUpdate();
 		return true;
-	}	
+	}
 	virtual void SetEnableTargetSeeking(bool enable)
 	{
 		this->enableTargetSeeking = enable;
@@ -58,14 +57,14 @@ public:
 	{
 		this->target = target;
 	}
-	virtual void SetMovementRange(int minX,int maxX,int minY,int maxY)
+	virtual void SetMovementRange(int minX, int maxX, int minY, int maxY)
 	{
 		this->movementXBound[0] = minX;
 		this->movementXBound[1] = maxX;
 		this->movementYBound[0] = minY;
 		this->movementYBound[1] = maxY;
 	}
-	virtual void ChangeHp(int hp,int reboundType)
+	virtual void ChangeHp(int hp, int reboundType)
 	{
 		if (hp < 0)
 			hp = 0;
@@ -117,8 +116,8 @@ public:
 			cumlativeTime_ATK += delta;
 		}
 	}
-	std::function<void(MonsterNode*)> onDead;
-	std::function<void(MonsterNode*)> onAttak;
+	std::function<void(MonsterNode*)> Dead;
+	std::function<void(MonsterNode*)> Attack;
 public:
 	virtual Sprite* GetMonsterSprite()
 	{
@@ -170,7 +169,7 @@ public:
 		lb->loadTexture("Mons/hps.png");
 		lb->setName("lb");
 		rootNode->addChild(lb);
-				
+
 		FlowWord* fl = FlowWord::create();
 		fl->setName("FLWord");
 		fl->setPosition(0, 0);
@@ -178,7 +177,7 @@ public:
 	}
 	virtual void InitAnimations()
 	{
-		
+
 	}
 	virtual void InitEventHandlers()
 	{
@@ -193,7 +192,7 @@ public:
 			StartATK();
 		}
 	}
-	virtual bool ChangeState(ActionState actionState)
+	virtual bool ChangeState(MonsterActionState actionState)
 	{
 		if ((m_currActionState == ACTION_STATE_DEAD && actionState != ACTION_STATE_REMOVE) || m_currActionState == actionState)
 		{
@@ -222,8 +221,8 @@ public:
 			Sprite* mon = GetMonsterSprite();
 			inATK = true;
 			mon->runAction(m_pAttackAction);
-			if (onAttak != NULL)
-				onAttak(this);
+			if (Attack != NULL)
+				Attack(this);
 		}
 	}
 	virtual void onEndATK()
@@ -254,8 +253,8 @@ public:
 	}
 	virtual void onEndDead()
 	{
-		if (onDead != NULL)
-			onDead(this);
+		if (Dead != NULL)
+			Dead(this);
 	}
 	virtual void MarchingToTargetPerFrame()
 	{
@@ -276,7 +275,7 @@ public:
 		bool isOnTargetLeft = (getPositionX() < target->getPositionX() ? true : false);
 		GetMonsterSprite()->setFlippedX(!isOnTargetLeft);
 	}
-	virtual void Rebound(int deltaHp,int reboundType)
+	virtual void Rebound(int deltaHp, int reboundType)
 	{
 		if (reboundType == 0)
 		{
@@ -303,7 +302,7 @@ public:
 			else
 			{
 				this->runAction(MoveBy::create(0.1f, Point(100, 0)));
-			}	
+			}
 		}
 	}
 	virtual bool IsInmove()
@@ -333,7 +332,7 @@ protected:
 	CC_SYNTHESIZE_RETAIN(Action*, m_pAttackAction, AttackAction);
 	CC_SYNTHESIZE_RETAIN(Action*, m_pHurtAction, HurtAction);
 	CC_SYNTHESIZE_RETAIN(Action*, m_pDeadAction, DeadAction);
-	CC_SYNTHESIZE(ActionState, m_currActionState, CurrActionState);
+	CC_SYNTHESIZE(MonsterActionState, m_currActionState, CurrActionState);
 	Node* rootNode;
 	int maxHp;
 	int curHp;
@@ -393,7 +392,7 @@ protected:
 private:
 };
 
-class Monster_2:public MonsterNode
+class Monster_2 :public MonsterNode
 {
 public:
 	Monster_2(){}
@@ -482,11 +481,4 @@ protected:
 	}
 private:
 };
-
-
-
-
-
-
-
 #endif

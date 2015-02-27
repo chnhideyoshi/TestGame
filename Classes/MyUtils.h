@@ -174,18 +174,20 @@ public:
 		node->setPositionX(posX+delta);
 	}
 
-	static void ShowTempAnimation(const char* name, float delay, int iLoops, Node* parent,Point pos)
+	static void ShowTempAnimation(const char* name, float delay, int iLoops, Node* parent,Point pos,FiniteTimeAction* pre)
 	{
-	/*	Sprite* sp1a = Sprite::create("Sprites//reimu.png");
+		Sprite* sp1a = Sprite::create();
 		sp1a->setAnchorPoint(Point(0.5, 0.5));
-		sp1a->set
-		this->addChild(sp1a);
+		sp1a->setPosition(pos);
+		parent->addChild(sp1a);
 		Animation* pATK5a = Tools::createWithSingleFrameName(name, delay, iLoops);
-		Action* ac = Sequence::create(Animate::create(pATK5a), CallFuncN::create([=](Node* sp)
+		if (pre == NULL)
+			pre = DelayTime::create(0);
+		Action* ac = Sequence::create(pre,Animate::create(pATK5a), CallFuncN::create([=](Node* sp)
 		{
 			sp->removeFromParentAndCleanup(true);
 		}), NULL);
-		sp1a->runAction(ac);*/
+		sp1a->runAction(ac);
 	}
 
 };
