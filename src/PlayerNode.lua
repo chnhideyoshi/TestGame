@@ -1,35 +1,4 @@
---PlayerOnceState
-O_STATE_NONE= 10
-O_STATE_ATK1= 11
-O_STATE_ATK2= 12
-O_STATE_ATK3= 13
-O_STATE_ATK4= 14
-O_STATE_ATK5= 15
-O_STATE_ATK6= 16
-O_STATE_ATK7= 17
-O_STATE_HURT= 18
-O_STATE_DEAD= 19
-O_STATE_WELOME= 20
-O_STATE_WIN= 21
 
---PlayerLastingState
-L_STATE_STAND=0
-L_STATE_FORWARD=1
-L_STATE_DEFEND=2
-
---KEYS
-KEY_UP=28;
-KEY_DOWN=29;
-KEY_LEFT=26;
-KEY_RIGHT=27;
-
-KEY_Z=149;
-KEY_X=147;
-KEY_C=126;
-KEY_A=124;
-KEY_S=142;
-KEY_D=127;
-KEY_Q=140;
 
 PlayerNode = class("PlayerNode",function()
     return cc.Sprite:create();
@@ -65,6 +34,7 @@ function PlayerNode:InitDefaultParms()
 	self.directionStack0Y=0;
 	self.directionStack1X=0;
 	self.directionStack1Y=0;
+	self.speed=5;
 end
 
 function PlayerNode:InitComponents()
@@ -139,7 +109,7 @@ function PlayerNode:InitEventHandlers()
             self.curDirectionX=self.curDirectionX-1;
 			self:CheckFlip()
 		else
-			print("nima")
+			--print("nima")
 		end
 	end
 	
@@ -165,48 +135,6 @@ end
 function PlayerNode:InitAnimations()
 	local frameCache = cc.SpriteFrameCache:getInstance();
 	frameCache:addSpriteFrames("Sprites//reimu2.plist","Sprites//reimu2.png");
-	
---[[		Animation* pStandAnim = Tools::createWithSingleFrameName("reimu_stand_", 0.1f, -1);
-		this->setStandAction(RepeatForever::create(Animate::create(pStandAnim)));
-
-		Animation* pForwardAnim = Tools::createWithSingleFrameName("reimu_forward_", 0.1f, -1);
-		this->setForwardAction(RepeatForever::create(Animate::create(pForwardAnim)));
-
-		Animation* pDefendAnim = Tools::createWithSingleFrameName("reimu_defend_", 0.1f, 1);
-		this->setDefendAction(Sequence::create(Animate::create(pDefendAnim), NULL));
-
-		Animation* pATK1Anim = Tools::createWithSingleFrameName("reimu_atk1_", 0.1f, 1);
-		this->setATK1Action(Sequence::create(Animate::create(pATK1Anim), CallFunc::create(this, SEL_CallFunc(&PlayerNode::onEndATK1)), NULL));
-
-		Animation* pATK2Anim = Tools::createWithSingleFrameName("reimu_atk2_", 0.1f, 1);
-		this->setATK2Action(Sequence::create(Animate::create(pATK2Anim), CallFunc::create(this, SEL_CallFunc(&PlayerNode::onEndATK2)), NULL));
-
-		Animation* pATK3Anim = Tools::createWithSingleFrameName("reimu_atk3_", 0.1f, 1);
-		this->setATK3Action(Sequence::create(Animate::create(pATK3Anim), CallFunc::create(this, SEL_CallFunc(&PlayerNode::onEndATK3)), NULL));
-
-		Animation* pATK4Anim = Tools::createWithSingleFrameName("reimu_atk4_", 0.1f, 1);
-		this->setATK4Action(Sequence::create(Animate::create(pATK4Anim), CallFunc::create(this, SEL_CallFunc(&PlayerNode::onEndATK4)), NULL));
-
-		Animation* pATK5Anim = Tools::createWithSingleFrameName("reimu_atk5_", 0.1f, 1);
-		this->setATK5Action(Sequence::create(Animate::create(pATK5Anim), CallFunc::create(this, SEL_CallFunc(&PlayerNode::onEndATK5)), NULL));
-
-		Animation* pATK6Anim = Tools::createWithSingleFrameName("reimu_atk6_", 0.1f, 1);
-		this->setATK6Action(Sequence::create(Animate::create(pATK6Anim), CallFunc::create(this, SEL_CallFunc(&PlayerNode::onEndATK6)), NULL));
-
-		Animation* pATK7Anim = Tools::createWithSingleFrameName("reimu_atk7_", 0.1f, 1);
-		this->setATK7Action(Sequence::create(Animate::create(pATK7Anim), CallFunc::create(this, SEL_CallFunc(&PlayerNode::onEndATK7)), NULL));
-
-		Animation* pHurtAnim = Tools::createWithSingleFrameName("reimu_hurt_", 0.1f, 1);
-		this->setHurtAction(Sequence::create(Animate::create(pHurtAnim), CallFunc::create(this, SEL_CallFunc(&PlayerNode::onEndHurt)), NULL));
-
-		Animation* pStartAnim = Tools::createWithSingleFrameName("reimu_start_", 0.1f, 1);
-		this->setWelcomeAction(Sequence::create(Animate::create(pStartAnim), CallFunc::create(this, SEL_CallFunc(&PlayerNode::onEndWelcome)), NULL));
-
-		Animation* pWinAnim = Tools::createWithSingleFrameName("reimu_win_", 0.1f, 1);
-		this->setWinAction(Sequence::create(Animate::create(pWinAnim), CallFunc::create(this, SEL_CallFunc(&PlayerNode::onEndWin)), NULL));
-
-		Animation* pDeadAnim = Tools::createWithSingleFrameName("reimu_dead_", 0.1f, 1);
-		this->setDeadAction(Sequence::create(Animate::create(pDeadAnim), Blink::create(3, 9), CallFunc::create(this, SEL_CallFunc(&PlayerNode::onEndDead)), NULL));--]]
 
 	local pStandAni=createWithSingleFrameName("reimu_stand_",0.1,-1);
 	self.action_Stand=cc.RepeatForever:create(cc.Animate:create(pStandAni));
@@ -258,8 +186,61 @@ function PlayerNode:InitAnimations()
 	end));
 	self.action_ATK7:retain();
 	
+	local pHurtAni = createWithSingleFrameName("reimu_hurt_", 0.1, 1);
+	self.action_Hurt=cc.Sequence:create(cc.Animate:create(pHurtAni),cc.CallFunc:create(function(node,value)
+		self:EndATK();
+	end));
+	self.action_Hurt:retain();
 	
+	local pStartAni = createWithSingleFrameName("reimu_start_", 0.1, 1);
+	self.action_Welcome=cc.Sequence:create(cc.Animate:create(pStartAni),cc.CallFunc:create(function(node,value)
+		self:EndWelcome();
+	end));
+	self.action_Welcome:retain();
 	
+	local pDeadAni = createWithSingleFrameName("reimu_dead_", 0.1, 1);
+	self.action_Dead=cc.Sequence:create(cc.Animate:create(pDeadAni),cc.Blink:create(3, 9),cc.CallFunc:create(function(node,value)
+		self:EndDead();
+	end));
+	self.action_Dead:retain();
+	
+	local pWinAni = createWithSingleFrameName("reimu_win_", 0.1, 1);
+	self.action_Win=cc.Sequence:create(cc.Animate:create(pWinAni),cc.CallFunc:create(function(node,value)
+		self:EndWin();
+	end));
+	self.action_Win:retain();
+	
+end
+
+function PlayerNode:SetOnceState(state)
+	self.curOState = state;
+	if state == O_STATE_ATK1 then
+		self:StartATK1();
+	elseif state == O_STATE_ATK2 then
+		self:StartATK2();
+	elseif state == O_STATE_ATK3 then
+		self:StartATK3();
+	elseif state == O_STATE_ATK4 then
+		self:StartATK4();
+	elseif state == O_STATE_ATK5 then
+		self:StartATK5();
+	elseif state == O_STATE_ATK6 then
+		self:StartATK6();
+	elseif state == O_STATE_ATK7 then
+		self:StartATK7();
+	elseif state == O_STATE_DEAD then
+		self:StartDead();
+	elseif state == O_STATE_WELOME then
+		self:StartWelcome();
+	elseif state == O_STATE_HURT then
+		self:StartHurt();
+	elseif state == O_STATE_WIN then
+		self:StartWin();
+	elseif state == O_STATE_NONE then
+		self:stopAllActions();
+	else
+		return;
+	end
 end
 
 function PlayerNode:BecomeStand()
@@ -328,10 +309,64 @@ function PlayerNode:StartATK7()
 	end
 end
 
+function PlayerNode:StartHurt()
+	self:stopAllActions();
+	self:runAction(self.action_Hurt);
+	if self.OnceStateChanged ~= nil then
+		self.OnceStateChanged(self, O_STATE_HURT);
+	end
+end
 
+function PlayerNode:StartDead()
+	self:stopAllActions();
+	self:runAction(self.action_Dead);
+	if self.OnceStateChanged ~= nil then
+		self.OnceStateChanged(self, O_STATE_DEAD);
+	end
+end
+
+function PlayerNode:StartWelcome()
+	self:stopAllActions();
+	self:runAction(self.action_Welcome);
+	if self.OnceStateChanged ~= nil then
+		self.OnceStateChanged(self, O_STATE_WELOME);
+	end
+end
+
+function PlayerNode:StartWin()
+	self:stopAllActions();
+	self:runAction(self.action_Win);
+	if self.OnceStateChanged ~= nil then
+		self.OnceStateChanged(self, O_STATE_WIN);
+	end
+end
 
 function PlayerNode:EndATK()
 	self.curOState = O_STATE_NONE;
+	self:onBackToLastingState();
+end
+
+function PlayerNode:EndWin()
+	self.curOState = O_STATE_NONE;
+	if self.End~=nil then
+		self.End(self,1);
+	end
+	self:onBackToLastingState();
+end
+
+function PlayerNode:EndDead()
+	self.curOState = O_STATE_NONE;
+	if self.End~=nil then
+		self.End(self,0);
+	end
+	self:onBackToLastingState();
+end
+
+function PlayerNode:EndWelcome()
+	self.curOState = O_STATE_NONE;
+	if self.End~=nil then
+		self.End(self,2);
+	end
 	self:onBackToLastingState();
 end
 
@@ -342,7 +377,7 @@ function PlayerNode:onBackToLastingState()
 	elseif curLState == L_STATE_FORWARD then
 		self:BecomeForward();
 	else
-		print("hhhh");
+		self:BecomeForward();
 	end
 end
 
@@ -358,7 +393,6 @@ function PlayerNode:SetLastingState(state)
 		end
 	end
 end
-
 	
 function PlayerNode:CheckLastingStatedChanged()
 	local islastMoving = self.directionStack0X ~= 0 or self.directionStack0Y ~= 0;
