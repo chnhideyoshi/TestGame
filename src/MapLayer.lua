@@ -45,14 +45,14 @@ function MapLayer:InitComponents()
 end
 
 function MapLayer:InitEventHandlers()
-	local function onKeyPressed(keyCode, event)
-		if keyCode==136 then
+	local function onKeyPressed_map(keyCode, event)
+		if keyCode==KEY_SPACE then
 			self:Test();
 		end
 	end
 	local dispatcher = cc.Director:getInstance():getEventDispatcher()
     local listener = cc.EventListenerKeyboard:create()
-    listener:registerScriptHandler(onKeyPressed, cc.Handler.EVENT_KEYBOARD_PRESSED)
+    listener:registerScriptHandler(onKeyPressed_map, cc.Handler.EVENT_KEYBOARD_PRESSED)
     dispatcher:addEventListenerWithSceneGraphPriority(listener,self)
 end
 
@@ -190,8 +190,8 @@ function MapLayer:CreateMonster(mtype)
 		monster=MonsterNode.create_1();
 	end
 	monster:setAnchorPoint(0.5, 0.5);
-	monster.EnableTargetSeeking=true;
-	monster.TargetNode=self.player;
+	monster.enableTargetSeeking=true;
+	monster.target=self.player;
 	monster.Attack=function(sender)
 		print("as");
 	end
