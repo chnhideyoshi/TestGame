@@ -4,7 +4,7 @@ MainMenuLayer = class("MainMenuLayer",function()
 end)
 
 
-function MainMenuLayer.createLayer()
+function MainMenuLayer.create()
 	local layer=MainMenuLayer.new()
 	layer:init()
 	return layer;

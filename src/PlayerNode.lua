@@ -5,7 +5,7 @@ PlayerNode = class("PlayerNode",function()
 
 end)
 
-function PlayerNode.createPlayer()
+function PlayerNode.create()
 	local sp=PlayerNode.new()
 	sp:init_my()
 	return sp;
@@ -35,12 +35,22 @@ function PlayerNode:InitDefaultParms()
 	self.directionStack1X=0;
 	self.directionStack1Y=0;
 	self.speed=5;
+	self.Hp=10000;
+	self.Mp=0;
+	self.MaxHp=self.Hp;
+	self.MaxMp=self.Mp;
 end
 
 function PlayerNode:InitComponents()
 	print("InitComponents")
 	self:setSpriteFrame(cc.SpriteFrame:create("Sprites//reimud.png", cc.rect(0,0,362,279)) )
 	print("~InitComponents")
+	
+	local flow=GetFlowWordNode();
+	flow:setName("flow");
+	flow:setAnchorPoint(0.5, 0.5);
+	flow:setPosition(190, 100);
+	self:addChild(flow);
 end
 
 function PlayerNode:InitEventHandlers()
@@ -59,41 +69,44 @@ function PlayerNode:InitEventHandlers()
             self.curDirectionX=self.curDirectionX+1;
 			self:CheckFlip()
         elseif keyCode == KEY_Z then 
-            if not self:InOAction() then
+			if not self:InOAction() then
 				self.curOState = O_STATE_ATK1;
 				self:StartATK1();
 			end
         elseif keyCode == KEY_X then
-           if not self:InOAction() then
+            if not self:InOAction() then
 				self.curOState = O_STATE_ATK2;
 				self:StartATK2();
 			end
         elseif keyCode == KEY_C then
-           if not self:InOAction() then
+            if not self:InOAction() then
 				self.curOState = O_STATE_ATK3;
 				self:StartATK3();
 			end
         elseif keyCode == KEY_A then 
-           if not self:InOAction() then
+            if not self:InOAction() then
 				self.curOState = O_STATE_ATK4;
 				self:StartATK4();
 			end
         elseif keyCode == KEY_S then 
-           if not self:InOAction() then
+            if not self:InOAction() then
 				self.curOState = O_STATE_ATK5;
 				self:StartATK5();
 			end
         elseif keyCode == KEY_D then 
-           if not self:InOAction() then
+            if not self:InOAction() then
 				self.curOState = O_STATE_ATK6;
 				self:StartATK6();
 			end
         elseif keyCode == KEY_Q then 
-           if not self:InOAction() then
+            if not self:InOAction() then
 				self.curOState = O_STATE_ATK7;
 				self:StartATK7();
 			end
+		elseif keyCode == KEY_SPACE then 
+			self:Test();
 		end
+		
 	end
 	local function onKeyReleased(keyCode, event)
         if keyCode == KEY_UP then
@@ -128,7 +141,7 @@ function PlayerNode:InitUpdate()
 		self.directionStack1X=self.curDirectionX;
 		self.directionStack1Y=self.curDirectionY;
 		self:CheckLastingStatedChanged();
-		
+		self:onRecoverMp();
     end,0)
 end
 
@@ -432,4 +445,66 @@ function PlayerNode:CheckFlip()
 	end
 end
 
-return PlayerNode
+function PlayerNode:ShowMpMessage()
+	local flow=self:getChildByName("flow");
+	ShowWord2(flow,"MP NOT READY!");
+end
+
+function PlayerNode:ChangeHp(hp)
+	if hp<self.Hp then
+		if hp<0 then hp=0 end
+		self.Hp=hp;
+		if self.HpChanged~=nil then
+			self.HpChanged(self);
+		end
+		if hp ==0 then
+			if self.OnceStateChanged~=nil then
+				self.OnceStateChanged(self,O_STATE_DEAD);
+			end
+		else
+			if self.curOState==O_STATE_NONE then
+				self:SetOnceState(O_STATE_HURT);
+			end
+		end
+	elseif hp>self.Hp then
+	
+	else
+		return;
+	end
+	
+end
+
+function PlayerNode:ChangeMp(mp)
+	if self.Mp==mp then
+		return;
+	end
+	if mp>self.MaxMp then
+		mp=self.MaxMp;
+	end
+	if mp<0 then
+		mp=0;
+	end
+	self.Mp=mp;
+	if self.MpChanged~=nil then
+		self.MpChanged(self);
+	end
+end
+
+function PlayerNode:onRecoverMp()
+	if  self.Mp < self.MaxMp then
+		self.Mp =self.Mp + 1;
+		if self.Mp>self.MaxMp then
+			self.Mp = self.MaxMp;
+		end
+		if self.MpChanged ~= nil then
+			self.MpChanged(self);
+		end
+	end
+end
+
+
+function PlayerNode:Test()
+	self:ChangeHp(self.Hp-200);
+end
+
+return PlayerNode;

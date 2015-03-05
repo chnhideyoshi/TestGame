@@ -3,7 +3,7 @@ SkillNode = class("SkillNode",function()
 
 end)
 
-function SkillNode.createLayer()
+function SkillNode.create()
 	local layer=SkillNode.new()
 	layer:init()
 	return layer;

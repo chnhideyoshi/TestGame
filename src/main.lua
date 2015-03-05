@@ -10,6 +10,7 @@ require("MainMenuLayer")
 require("PlayerNode")
 require("MonsterNodes")
 require("SkillNodes")
+require("NavigatorLayer")
 require("MapLayer")
 require("Scenes")
 

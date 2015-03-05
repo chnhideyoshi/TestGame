@@ -2,7 +2,7 @@
 function GetStartScene()
 	print("load start scene!")
 	local sceneGame = cc.Scene:create()
-	local layer= MainMenuLayer.createLayer();
+	local layer= MainMenuLayer.create();
 	local callback=function(type)
 		if type == 1 then
 			cc.Director:getInstance():replaceScene(cc.TransitionProgressInOut:create(0.2,GetMainScene()))
@@ -20,7 +20,7 @@ end
 function GetMainScene()
 	print("load main scene!")
 	local sceneGame = cc.Scene:create()
-	local layer= MapLayer.createLayer();
+	local layer= MapLayer.create();
 	local callback=function(type)
 		if type == 1 then
 			cc.Director:getInstance():replaceScene(cc.TransitionProgressInOut:create(0.2,GetStartScene()))
