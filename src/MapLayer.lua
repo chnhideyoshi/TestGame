@@ -19,6 +19,7 @@ function MapLayer:init()
 	self:InitEventHandlers();
 	self:InitPlayer();
 	self:InitMonsters();
+	self:InitSkills();
 	self:InitUpdate();
 	return true;
 end
@@ -27,7 +28,6 @@ function MapLayer:InitDefaultParms()
 	self.movementYBound0 = 80;
 	self.movementYBound1 = 323;
 	self.movementXOffsetThreshold = 200;
-	
 	self.monsters={};
 end
 
@@ -84,21 +84,60 @@ function MapLayer:InitPlayer()
 			sender:SetOnceState(O_STATE_DEAD);
 		end
 	end
-	
-	
+	self.player.ATKReadyChecked=function(node,newstate)
+		local ret=skManager:GetChecked(node,newstate);
+		if not ret then
+			node:ShowMessage("MP NOT READY!");
+		end
+		return ret;
+	end
+	self.player.OnceStateChanged=function(sender,newstate)
+		local ret=false;
+		if newstate==O_STATE_ATK1 then
+			ret=self.skManager:PlayerExecuteSkill(PLAYER_SKILL_ATK1,self.mapPanel);
+		end
+		if newstate==O_STATE_ATK2 then
+			ret=self.skManager:PlayerExecuteSkill(PLAYER_SKILL_ATK2,self.mapPanel);
+		end
+		if newstate==O_STATE_ATK3 then
+			ret=self.skManager:PlayerExecuteSkill(PLAYER_SKILL_ATK3,self.mapPanel);
+		end
+		if newstate==O_STATE_ATK4 then
+			ret=self.skManager:PlayerExecuteSkill(PLAYER_SKILL_ATK4,self.mapPanel);
+		end
+		if newstate==O_STATE_ATK5 then
+			ret=self.skManager:PlayerExecuteSkill(PLAYER_SKILL_ATK5,self.mapPanel);
+		end
+		if newstate==O_STATE_ATK6 then
+			ret=self.skManager:PlayerExecuteSkill(PLAYER_SKILL_ATK6,self.mapPanel);
+		end
+		if newstate==O_STATE_ATK7 then
+			ret=self.skManager:PlayerExecuteSkill(PLAYER_SKILL_ATK7,self.mapPanel);
+		end
+	end
 	print("~InitPlayer")
-	
-	
-
 end
 
 function MapLayer:InitMonsters()
-	local mon = self:CreateMonster(0);
-	mon:setPosition(600,250);
-	mon:setGlobalZOrder(5);
-	mon:SetMovementRange(0, self.mapPanel:getContentSize().width - 5, self.movementYBound0, self.movementYBound1);
-	self.mapPanel:addChild(mon);
-	table.insert(self.monsters,mon);
+	local count=7;
+	self.monsters={};
+	local sz=self.mapPanel:getContentSize();
+	local vec=GetRandPointsInRect(1,self.movementYBound0,sz.width-1,self.movementYBound1-100,count)
+	for i=1,count do
+		local mon = self:CreateMonster((i-1)%3);
+		mon:setPosition(vec[i]);
+		mon:setGlobalZOrder(5);
+		mon:SetMovementRange(0, self.mapPanel:getContentSize().width - 5, self.movementYBound0, self.movementYBound1);
+		self.mapPanel:addChild(mon);
+		table.insert(self.monsters,mon);
+	end
+	
+end
+
+function MapLayer:InitSkills()
+	self.skManager=SkillManager.create();
+	self.skManager.player=self.player;
+	self.skManager.monsters=self.monsters;
 end
 
 function MapLayer:InitUpdate()
@@ -185,18 +224,18 @@ function MapLayer:CreateMonster(mtype)
 	if mtype==0 then
 		monster=MonsterNode.create_1();
 	elseif mtype==1 then
-		monster=MonsterNode.create_1();
+		monster=MonsterNode.create_2();
 	else
-		monster=MonsterNode.create_1();
+		monster=MonsterNode.create_3();
 	end
 	monster:setAnchorPoint(0.5, 0.5);
 	monster.enableTargetSeeking=true;
 	monster.target=self.player;
 	monster.Attack=function(sender)
-		print("as");
+		--print("as");
 	end
 	monster.Dead=function(sender)
-		print("as2");
+		--print("as2");
 	end
 	
 	return monster;

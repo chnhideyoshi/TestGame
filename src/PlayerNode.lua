@@ -445,9 +445,9 @@ function PlayerNode:CheckFlip()
 	end
 end
 
-function PlayerNode:ShowMpMessage()
+function PlayerNode:ShowMpMessage(msg)
 	local flow=self:getChildByName("flow");
-	ShowWord2(flow,"MP NOT READY!");
+	ShowWord2(flow,msg);
 end
 
 function PlayerNode:ChangeHp(hp)
@@ -499,6 +499,14 @@ function PlayerNode:onRecoverMp()
 		if self.MpChanged ~= nil then
 			self.MpChanged(self);
 		end
+	end
+end
+
+function PlayerNode:AttackChecked(state)
+	if self.ATKReadyChecked ~= nil then
+		return self.ATKReadyChecked(self, state);
+	else
+		return true;
 	end
 end
 

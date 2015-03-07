@@ -1,6 +1,6 @@
 
 MonsterNode = class("MonsterNode",function()
-    return cc.Layer:create();
+    return cc.Node:create();
 
 end)
 
@@ -109,6 +109,7 @@ function MonsterNode:SetMovementRange(minX,maxX,minY,maxY)
 end
 
 function MonsterNode:ChangeHp(hp,reboundType)
+	print("MonsterNode:ChangeHp")
 	if hp < 0 then
 		hp = 0;
 	end
@@ -193,8 +194,36 @@ function MonsterNode:onEndDead()
 	end
 end
 
-function MonsterNode:Rebound(deltaHp,rtype)
-	
+function MonsterNode:Rebound(deltaHp,reboundType)
+	print("MonsterNode:Rebound")
+	if reboundType==0 then
+		self:stopAllActions();
+		local leng=deltaHp/8;
+		local tx,ty=self.target:getPosition();
+		local px,py=self:getPosition();
+		local p=cc.p(px,py);
+		local t=cc.p(tx,ty);
+		local len=cc.pGetDistance(t,p);
+		if len ~=0 then
+			local delta=cc.p((px-tx)*leng/len,(py-ty)*leng/len);
+			if delta.y+py>self.movementYBound1 then
+				local rate=math.abs(py-self.movementYBound1)/math.abs(delta.y);
+				delta.x=delta.x*rate;
+				delta.y=delta.y*rate;
+			end
+			if delta.y+py<self.movementYBound0 then
+				local rate=math.abs(py-self.movementYBound0)/math.abs(delta.y);
+				delta.x=delta.x*rate;
+				delta.y=delta.y*rate;
+			end
+			local ac=cc.MoveBy:create(0.1,cc.p(delta.x, delta.y));
+			self:runAction(ac);
+		else
+			local ac=cc.MoveBy:create(0.1,cc.p(100,0));
+			self:runAction(ac);
+		end
+		
+	end
 end
 
 function MonsterNode:CheckFilp()
@@ -251,6 +280,7 @@ function MonsterNode:Test()
 	self:ChangeHp(self.curHp-600,0);
 end
 
+--Monster type 1
 ----------------------------------------
 
 function MonsterNode.create_1()
@@ -270,7 +300,7 @@ end
 
 function MonsterNode:InitDefaultParams_1()
 	self:InitDefaultParams();
-	
+	self.speedrate=0.8;
 end
 
 function MonsterNode:InitComponents_1()
@@ -309,6 +339,142 @@ function MonsterNode:InitAnimations_1()
 	self.action_Hurt:retain();
 	
 	local pDeadAnim = createWithSingleFrameName("mons4_", 0.2, 1);
+	self.action_Dead=cc.Sequence:create(cc.Animate:create(pDeadAnim),cc.Blink:create(3, 9),cc.CallFunc:create(function(node,value)
+		self:onEndDead();
+	end));
+	self.action_Dead:retain();	
+
+	self:BecomeStand()
+end
+
+
+
+
+--Monster type 2
+----------------------------------------
+function MonsterNode.create_2()
+	local node=MonsterNode.new()
+	node:init_2()
+	return node;
+end
+
+function MonsterNode:init_2()
+	self:InitDefaultParams_2();
+	self:InitComponents_2();
+	self:InitEventHandlers_2();
+	self:InitAnimations_2();
+	self:InitUpdate();
+	return true;
+end
+
+function MonsterNode:InitDefaultParams_2()
+	self:InitDefaultParams();
+	self.speedrate=1;
+end
+
+function MonsterNode:InitComponents_2()
+	self:InitComponents();
+	local sp = cc.Sprite:create("Mons//mons2d.png");
+	sp:setContentSize(cc.size(88, 101));
+	sp:setName("sp");
+	sp:setAnchorPoint(0.5, 0.5);
+	self.sprite=sp;
+	self.rootNode:addChild(sp);
+end
+
+function MonsterNode:InitEventHandlers_2()
+	self:InitEventHandlers();
+end
+
+function MonsterNode:InitAnimations_2()
+	self:InitAnimations();
+	local frameCache = cc.SpriteFrameCache:getInstance();
+	frameCache:addSpriteFrames("Mons\\mons2.plist", "Mons\\mons2.png");
+
+	local pIdleAnim=createWithSingleFrameName("mons2_stand_", 0.2, 1);
+	self.action_Idle=cc.RepeatForever:create(cc.Animate:create(pIdleAnim));
+	self.action_Idle:retain();
+	
+	local pAttackAnim=createWithSingleFrameName("mons2_atk_", 0.2, 1);
+	self.action_Attack=cc.Sequence:create(cc.Animate:create(pAttackAnim),cc.CallFunc:create(function(node,value)
+		self:onEndATK();
+	end));
+	self.action_Attack:retain();
+
+	local pHurtAnim=createWithSingleFrameNameAndCount("mons2_dead_", 2, 0.2, 1);
+	self.action_Hurt=cc.Sequence:create(cc.Animate:create(pHurtAnim),cc.CallFunc:create(function(node,value)
+		self:onEndHurt();
+	end));
+	self.action_Hurt:retain();
+	
+	local pDeadAnim = createWithSingleFrameName("mons2_dead_", 0.2, 1);
+	self.action_Dead=cc.Sequence:create(cc.Animate:create(pDeadAnim),cc.Blink:create(3, 9),cc.CallFunc:create(function(node,value)
+		self:onEndDead();
+	end));
+	self.action_Dead:retain();	
+
+	self:BecomeStand()
+end
+
+
+--Monster type 3
+----------------------------------------
+function MonsterNode.create_3()
+	local node=MonsterNode.new()
+	node:init_3()
+	return node;
+end
+
+function MonsterNode:init_3()
+	self:InitDefaultParams_3();
+	self:InitComponents_3();
+	self:InitEventHandlers_3();
+	self:InitAnimations_3();
+	self:InitUpdate();
+	return true;
+end
+
+function MonsterNode:InitDefaultParams_3()
+	self:InitDefaultParams();
+	self.speedrate=1.5;
+end
+
+function MonsterNode:InitComponents_3()
+	self:InitComponents();
+	local sp = cc.Sprite:create("Mons//mons3d.png");
+	sp:setContentSize(cc.size(88, 101));
+	sp:setName("sp");
+	sp:setAnchorPoint(0.5, 0.5);
+	self.sprite=sp;
+	self.rootNode:addChild(sp);
+end
+
+function MonsterNode:InitEventHandlers_3()
+	self:InitEventHandlers();
+end
+
+function MonsterNode:InitAnimations_3()
+	self:InitAnimations();
+	local frameCache = cc.SpriteFrameCache:getInstance();
+	frameCache:addSpriteFrames("Mons\\mons3.plist", "Mons\\mons3.png");
+
+	local pIdleAnim=createWithSingleFrameName("Mons3_atk_", 0.2, 1);
+	self.action_Idle=cc.RepeatForever:create(cc.Animate:create(pIdleAnim));
+	self.action_Idle:retain();
+	
+	local pAttackAnim=createWithSingleFrameName("Mons3_stand_", 0.2, 1);
+	self.action_Attack=cc.Sequence:create(cc.Animate:create(pAttackAnim),cc.CallFunc:create(function(node,value)
+		self:onEndATK();
+	end));
+	self.action_Attack:retain();
+
+	local pHurtAnim=createWithSingleFrameNameAndCount("Mons3_atk_", 2, 0.2, 1);
+	self.action_Hurt=cc.Sequence:create(cc.Animate:create(pHurtAnim),cc.CallFunc:create(function(node,value)
+		self:onEndHurt();
+	end));
+	self.action_Hurt:retain();
+	
+	local pDeadAnim = createWithSingleFrameName("Mons3_atk_", 0.2, 1);
 	self.action_Dead=cc.Sequence:create(cc.Animate:create(pDeadAnim),cc.Blink:create(3, 9),cc.CallFunc:create(function(node,value)
 		self:onEndDead();
 	end));

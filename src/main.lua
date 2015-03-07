@@ -10,6 +10,7 @@ require("MainMenuLayer")
 require("PlayerNode")
 require("MonsterNodes")
 require("SkillNodes")
+require("SkillManager")
 require("NavigatorLayer")
 require("MapLayer")
 require("Scenes")
@@ -93,7 +94,7 @@ local function GetTestLayer()
 end
 
 local function main()
-    collectgarbage("collect")
+	collectgarbage("collect")
     -- avoid memory leak
     collectgarbage("setpause", 100)
     collectgarbage("setstepmul", 5000)
@@ -108,7 +109,18 @@ local function main()
     glview:setDesignResolutionSize(960, 640, cc.ResolutionPolicy.NO_BORDER)
     director:setDisplayStats(false)
     director:setAnimationInterval(1.0 / 60)
-    local schedulerID = 0
+	---------------------    
+	--[[local testsub=TestLayerSub.create();
+	local testsub2=TestLayerSub2.create();
+	tb={};
+	table.insert(tb,testsub);
+	table.insert(tb,testsub2);
+	for i=1,#tb do
+		tb[i]:Start();
+	end--]]
+	
+	---------------------
+	local schedulerID = 0
     local visibleSize = cc.Director:getInstance():getVisibleSize()
     local origin = cc.Director:getInstance():getVisibleOrigin()
 	local sceneGame=GetStartScene();
