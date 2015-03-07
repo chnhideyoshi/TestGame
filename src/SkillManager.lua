@@ -41,12 +41,23 @@ function SkillManager:RegisterAllSkills()
 	self.playerStateToSkillTable[O_STATE_ATK7] = PLAYER_SKILL_ATK7;
 	
 	self:RegisterPlayerSkill(SkillNode_ATK1.create(),PLAYER_SKILL_ATK1,"atk1");
+	self:RegisterPlayerSkill(SkillNode_ATK2.create(),PLAYER_SKILL_ATK2,"atk2");
+	self:RegisterPlayerSkill(SkillNode_ATK3.create(),PLAYER_SKILL_ATK3,"atk3");
+	self:RegisterPlayerSkill(SkillNode_ATK4.create(),PLAYER_SKILL_ATK4,"atk4");
+	self:RegisterPlayerSkill(SkillNode_ATK5.create(),PLAYER_SKILL_ATK5,"atk5");
+	self:RegisterPlayerSkill(SkillNode_ATK6.create(),PLAYER_SKILL_ATK6,"atk6");
+	--self:RegisterPlayerSkill(SkillNode_ATK7.create(),PLAYER_SKILL_ATK7,"atk7");
 	
 end
 
 function SkillManager:GetChecked(playerstate)
 	print("SkillManager:GetChecked")
-	
+	local sk = self.skillsTable[self.playerStateToSkillTable[playerstate]];
+	if (sk.mpneed > self.player.Mp) then
+		return false;
+	else
+		return true;
+	end
 end
 
 function SkillManager:PlayerExecuteSkill(skillType,map)

@@ -85,7 +85,7 @@ function MapLayer:InitPlayer()
 		end
 	end
 	self.player.ATKReadyChecked=function(node,newstate)
-		local ret=skManager:GetChecked(node,newstate);
+		local ret=self.skManager:GetChecked(newstate);
 		if not ret then
 			node:ShowMessage("MP NOT READY!");
 		end
@@ -115,6 +115,13 @@ function MapLayer:InitPlayer()
 			ret=self.skManager:PlayerExecuteSkill(PLAYER_SKILL_ATK7,self.mapPanel);
 		end
 	end
+	self.player.WinEnd=function(sender)
+		self:Win();
+	end
+	self.player.WinEnd=function(sender)
+		self:Lose();
+	end
+	
 	print("~InitPlayer")
 end
 
@@ -188,38 +195,6 @@ function MapLayer:ManagePlayerMovement()
 end
 
 function MapLayer:CreateMonster(mtype)
---[[	MonsterNode* monster;
-		if (type==0)
-			monster = Monster_1::create();
-		else if (type==1)
-			monster = Monster_2::create();
-		else
-			monster = Monster_3::create();
-		monster->setAnchorPoint(ccp(0.5, 0.5));
-		monster->SetEnableTargetSeeking(true);
-		monster->SetTargetNode(this->GetPlayerSprite());
-		monster->Attack = [&](MonsterNode* mon)
-		{
-			skManager.MonsterExecuteSkill(mon, MONSTER_SKILL_1, GetMapPanel());
-		};
-		monster->Dead = [&](MonsterNode* mon)
-		{
-			for (size_t i = 0; i < monsters.size(); i++)
-			{
-				if (mon == monsters[i])
-				{
-					monsters[i] = monsters[monsters.size() - 1];
-					monsters.pop_back();
-					break;
-				}
-			}
-			mon->removeFromParent();
-			if (monsters.size() == 0)
-			{
-				player->SetOnceState(O_STATE_WIN);
-			}
-		};
-		return monster;--]]
 	local monster=nil;
 	if mtype==0 then
 		monster=MonsterNode.create_1();
@@ -231,14 +206,39 @@ function MapLayer:CreateMonster(mtype)
 	monster:setAnchorPoint(0.5, 0.5);
 	monster.enableTargetSeeking=true;
 	monster.target=self.player;
-	monster.Attack=function(sender)
-		--print("as");
+	monster.Attack=function(mon)
+		self.skManager:MonsterExecuteSkill(mon, MONSTER_SKILL_1, self.mapPanel);
 	end
-	monster.Dead=function(sender)
-		--print("as2");
+	monster.Dead=function(mon)
+		mon:removeFromParent();
+		local index=-1;
+		for i = 1,#self.monsters do
+			if (mon == monsters[i]) then
+				index=i;
+				break;
+			end
+		end
+		table.remove(self.monsters,index);
+		if #self.monsters ==0 then
+			self.player:SetOnceState(O_STATE_WIN);
+		end
 	end
 	
 	return monster;
+end
+
+function MapLayer:Win()
+	--CocosDenshion::SimpleAudioEngine::sharedEngine()->stopBackgroundMusic(true);
+	if (self.MapEnd ~= nil) then
+		self.MapEnd(true);
+	end
+end
+
+function MapLayer:Lose()
+	--CocosDenshion::SimpleAudioEngine::sharedEngine()->stopBackgroundMusic(true);
+	if (self.MapEnd ~= nil) then
+		self.MapEnd(false);
+	end
 end
 
 function MapLayer:Test()

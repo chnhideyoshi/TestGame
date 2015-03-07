@@ -21,15 +21,17 @@ function GetMainScene()
 	print("load main scene!")
 	local sceneGame = cc.Scene:create()
 	local layer= MapLayer.create();
-	local callback=function(type)
-		if type == 1 then
+	layer.MapEnd=function(result)
+		StopMusic();
+		if result then
+			
+			cc.Director:getInstance():replaceScene(cc.TransitionProgressInOut:create(0.2,GetStartScene()))
+		else
 			cc.Director:getInstance():replaceScene(cc.TransitionProgressInOut:create(0.2,GetStartScene()))
 		end
-		if type == 4 then
-			cc.Director:getInstance():endToLua();
-		end
-	end;
-	layer.NextSceneCalled=callback;
+		
+	end
+	PlayMusic("Sound//map1.mp3");
 	sceneGame:addChild(layer);
 	print("load main scene cmp!")
 	return sceneGame;

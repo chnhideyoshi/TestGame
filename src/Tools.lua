@@ -151,10 +151,10 @@ function GetRandPointsInRect(minX,minY,maxX,maxY,count)
 end
 
 function GetCenterFloatRandom(d,rate)
-	math.randomseed(tostring(os.time()):reverse():sub(1, 6));
+	--math.randomseed(tostring(os.time()):reverse():sub(1, 6));
 	local maxd=d+d*rate;
 	local mind=d-d*rate;
-	return math.random(mind,maxd);
+	return math.random(math.floor(mind),math.floor(maxd));
 end
 
 function PlaySound(name)
@@ -162,11 +162,15 @@ function PlaySound(name)
 end
 
 function PlayMusic(name)
-    cc.SimpleAudioEngine:getInstance():playEffect(name,true);
+    cc.SimpleAudioEngine:getInstance():playMusic(name,true);
+end
+
+function StopMusic()
+	cc.SimpleAudioEngine:getInstance():stopMusic();
 end
 
 
-------------------------------------------------------------
+--[[------------------------------------------------------------
 TestLayer = class("TestLayer",function()
     return cc.Layer:create();
 end)
@@ -213,4 +217,4 @@ function TestLayerSub2:Start()
 	--TestLayer.super.Start(self);
 	print("sub2");
 	print(self.p1);
-end
+end--]]

@@ -69,37 +69,37 @@ function PlayerNode:InitEventHandlers()
             self.curDirectionX=self.curDirectionX+1;
 			self:CheckFlip()
         elseif keyCode == KEY_Z then 
-			if not self:InOAction() then
+			if not self:InOAction() and self:AttackChecked(O_STATE_ATK1) then
 				self.curOState = O_STATE_ATK1;
 				self:StartATK1();
 			end
         elseif keyCode == KEY_X then
-            if not self:InOAction() then
+            if not self:InOAction() and self:AttackChecked(O_STATE_ATK2)then
 				self.curOState = O_STATE_ATK2;
 				self:StartATK2();
 			end
         elseif keyCode == KEY_C then
-            if not self:InOAction() then
+            if not self:InOAction() and self:AttackChecked(O_STATE_ATK3)then
 				self.curOState = O_STATE_ATK3;
 				self:StartATK3();
 			end
         elseif keyCode == KEY_A then 
-            if not self:InOAction() then
+            if not self:InOAction() and self:AttackChecked(O_STATE_ATK4)then
 				self.curOState = O_STATE_ATK4;
 				self:StartATK4();
 			end
         elseif keyCode == KEY_S then 
-            if not self:InOAction() then
+            if not self:InOAction() and self:AttackChecked(O_STATE_ATK5)then
 				self.curOState = O_STATE_ATK5;
 				self:StartATK5();
 			end
         elseif keyCode == KEY_D then 
-            if not self:InOAction() then
+            if not self:InOAction() and self:AttackChecked(O_STATE_ATK6)then
 				self.curOState = O_STATE_ATK6;
 				self:StartATK6();
 			end
         elseif keyCode == KEY_Q then 
-            if not self:InOAction() then
+            if not self:InOAction() and self:AttackChecked(O_STATE_ATK7)then
 				self.curOState = O_STATE_ATK7;
 				self:StartATK7();
 			end
@@ -445,7 +445,7 @@ function PlayerNode:CheckFlip()
 	end
 end
 
-function PlayerNode:ShowMpMessage(msg)
+function PlayerNode:ShowMessage(msg)
 	local flow=self:getChildByName("flow");
 	ShowWord2(flow,msg);
 end
