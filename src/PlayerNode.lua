@@ -328,6 +328,7 @@ function PlayerNode:StartHurt()
 	if self.OnceStateChanged ~= nil then
 		self.OnceStateChanged(self, O_STATE_HURT);
 	end
+	PlaySound("Sound//hurt.wav");
 end
 
 function PlayerNode:StartDead()
@@ -336,6 +337,7 @@ function PlayerNode:StartDead()
 	if self.OnceStateChanged ~= nil then
 		self.OnceStateChanged(self, O_STATE_DEAD);
 	end
+	PlaySound("Sound//dead.wav");
 end
 
 function PlayerNode:StartWelcome()

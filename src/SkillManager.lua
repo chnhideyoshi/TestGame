@@ -16,7 +16,7 @@ function SkillManager:InitParms()
 end
 
 function SkillManager:RegisterAllSkills()
-	print("SkillManager:RegisterAllSkills")
+	prints("SkillManager:RegisterAllSkills")
 --[[	
 		RegisterPlayerSkill(Skill_ATK1::create(), PLAYER_SKILL_ATK1, "atk1");
 		RegisterPlayerSkill(Skill_ATK2::create(), PLAYER_SKILL_ATK2, "atk2");
@@ -47,11 +47,11 @@ function SkillManager:RegisterAllSkills()
 	self:RegisterPlayerSkill(SkillNode_ATK5.create(),PLAYER_SKILL_ATK5,"atk5");
 	self:RegisterPlayerSkill(SkillNode_ATK6.create(),PLAYER_SKILL_ATK6,"atk6");
 	--self:RegisterPlayerSkill(SkillNode_ATK7.create(),PLAYER_SKILL_ATK7,"atk7");
-	
+	self:RegisterMonsterSkill(SkillNode_Mons1.create(),MONSTER_SKILL_1,"mons1")
 end
 
 function SkillManager:GetChecked(playerstate)
-	print("SkillManager:GetChecked")
+	prints("SkillManager:GetChecked")
 	local sk = self.skillsTable[self.playerStateToSkillTable[playerstate]];
 	if (sk.mpneed > self.player.Mp) then
 		return false;
@@ -61,7 +61,7 @@ function SkillManager:GetChecked(playerstate)
 end
 
 function SkillManager:PlayerExecuteSkill(skillType,map)
-	print("SkillManager:PlayerExecuteSkill")
+	prints("SkillManager:PlayerExecuteSkill")
 	local sk=self.skillsTable[skillType];
 	if sk==nil then
 		return false;
@@ -81,7 +81,7 @@ function SkillManager:PlayerExecuteSkill(skillType,map)
 end
 
 function SkillManager:MonsterExecuteSkill(mon, skillType,map)
-	print("SkillManager:MonsterExecuteSkill")
+	prints("SkillManager:MonsterExecuteSkill")
 	local sk=self.skillsTable[skillType];
 	if sk==nil then
 		return false;
@@ -95,23 +95,25 @@ function SkillManager:MonsterExecuteSkill(mon, skillType,map)
 end
 
 function SkillManager:PlayerCalculateDamage(skill)
-	print("SkillManager:PlayerCalculateDamage")
+	prints("SkillManager:PlayerCalculateDamage")
 	for i=1,#self.monsters do
-		local monrec=self.monsters[i]:getBoundingBox();
-		if skill:IsSkillRangeCover(cc.p(self.monsters[i]:getPosition())) then
-			local hp=self.monsters[i].curHp;
-			local rebtype=1;
-			if skill:getName()~="atk5" then
-				rebtype=0; 
-			end
+		if(self.monsters[i]~=nil) then
+			local posX,posY=(self.monsters[i]):getPosition()
+			if skill:IsSkillRangeCover(cc.p(posX,posY)) then
+				local hp=self.monsters[i].curHp;
+				local rebtype=1;
+				if skill:getName()~="atk5" then
+					rebtype=0; 
+				end
 			self.monsters[i]:ChangeHp(hp - skill:GetDamage(), rebtype);
 			skill:ShowDamage(self.monsters[i],i);
+			end
 		end
 	end
 end
 
 function SkillManager:MonsterCalculateDamage(skill)
-	print("SkillManager:MonsterCalculateDamage")
+	prints("SkillManager:MonsterCalculateDamage")
 	if self.player.curOState==O_STATE_DEAD then
 		return;
 	end
@@ -123,7 +125,7 @@ function SkillManager:MonsterCalculateDamage(skill)
 end
 
 function SkillManager:AddOrShow(map,sk)
-	print("SkillManager:AddOrShow")
+	prints("SkillManager:AddOrShow")
 	if map:getChildByName(sk:getName()) == nil then
 		map:addChild(sk);
 		sk:setGlobalZOrder(11);
@@ -134,7 +136,7 @@ function SkillManager:AddOrShow(map,sk)
 end
 
 function SkillManager:RegisterPlayerSkill(atk,key,name)
-	print("SkillManager:RegisterPlayerSkill")
+	prints("SkillManager:RegisterPlayerSkill")
 	atk:retain();
 	atk:setName(name);
 	atk.SkillEnd=function(sk)
@@ -147,7 +149,7 @@ function SkillManager:RegisterPlayerSkill(atk,key,name)
 end
 
 function SkillManager:RegisterMonsterSkill(atk,key,name)
-	print("SkillManager:RegisterMonsterSkill")
+	prints("SkillManager:RegisterMonsterSkill")
 	atk:retain();
 	atk:setName(name);
 	atk.SkillEnd=function(sk)

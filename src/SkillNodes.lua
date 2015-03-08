@@ -25,10 +25,10 @@ function SkillNode:InitParms()
 end
 
 function SkillNode:Start_d()
-	print("SkillNode:Start");
+	prints("SkillNode:Start");
 	local scheduler = cc.Director:getInstance():getScheduler();
 	local scheduleId=scheduler:scheduleScriptFunc(function(dt)
-		print("SkillNode:scheduleId_1");
+		prints("SkillNode:scheduleId_1");
 		self:onExecuteDamage(dt);
 		scheduler:unscheduleScriptEntry(self.scheduleId_1)
 	end,self.executeDelayTime,false);
@@ -44,7 +44,7 @@ function SkillNode:Start()
 end
 
 function SkillNode:onExecuteDamage_d(delta)
-	print("SkillNode:onExecuteDamage");                                                                                                                                               
+	prints("SkillNode:onExecuteDamage");                                                                                                                                               
 	if self.ExecuteDamage ~= nil then
 		self.ExecuteDamage(self);
 	end
@@ -65,7 +65,7 @@ function SkillNode:onExecuteDamage(delta)
 end
 
 function SkillNode:onSkillEnd_d(dt)
-	print("SkillNode:onSkillEnd");
+	prints("SkillNode:onSkillEnd");
 	if self.SkillEnd ~= nil then
 		self.SkillEnd(self);
 	end
@@ -80,7 +80,7 @@ function SkillNode:onSkillEnd(dt)
 end
 
 function SkillNode:IsSkillRangeCover(pos)
-	print("SkillNode:IsSkillRangeCover");
+	prints("SkillNode:IsSkillRangeCover");
 	for i=1,#self.coverRanges do
 		local actualRec=self:GetActualRect(self.coverRanges[i]);
 		if cc.rectContainsPoint(actualRec,pos) then
@@ -91,16 +91,16 @@ function SkillNode:IsSkillRangeCover(pos)
 end
 
 function SkillNode:ShowDamage(monster,index)
-	print("SkillNode:ShowDamage");
+	prints("SkillNode:ShowDamage");
 end
 
 function SkillNode:GetDamage()
-	print("SkillNode:GetDamage");
+	prints("SkillNode:GetDamage");
 	return GetCenterFloatRandom(self.damage,0.25);
 end
 
 function SkillNode:GetActualRect(coverTemplate)
-	print("SkillNode:GetActualRect");
+	prints("SkillNode:GetActualRect");
 	local minx=cc.rectGetMinX(coverTemplate)
 	local miny=cc.rectGetMinY(coverTemplate)
 	local maxx=cc.rectGetMaxX(coverTemplate)
@@ -117,7 +117,7 @@ function SkillNode:GetActualRect(coverTemplate)
 end
 
 function SkillNode:MovePos(deltaX,deltaY)
-	print("SkillNode:MovePos");
+	prints("SkillNode:MovePos");
 	local posX,posY = self:getPosition();
 	posX=posX+deltaX;
 	posY=posY+deltaY;
@@ -129,14 +129,14 @@ end
 SkillNode_ATK1=class("SkillNode_ATK1",SkillNode)
 
 function SkillNode_ATK1.create()
-	print("SkillNode_ATK1.create");
+	prints("SkillNode_ATK1.create");
 	local layer=SkillNode_ATK1.new()
 	layer:InitParms_Sub()
 	return layer;
 end
 
 function SkillNode_ATK1:InitParms_Sub()
-	print("SkillNode_ATK1:InitParms_Sub");
+	prints("SkillNode_ATK1:InitParms_Sub");
 	self:InitParms();
 	table.insert(self.coverRanges,cc.rect(0, -160, 220, 260));
 	self.executeDelayTime = 0.25;
@@ -147,7 +147,7 @@ function SkillNode_ATK1:InitParms_Sub()
 end
 
 function SkillNode_ATK1:onExecuteDamage_Sub(delta)
-	print("SkillNode_ATK1:onExecuteDamage_Sub");
+	prints("SkillNode_ATK1:onExecuteDamage_Sub");
 	PlaySound("Sound//hit.wav");
 	self:onExecuteDamage_d(delta);
 end
@@ -157,14 +157,14 @@ end
 SkillNode_ATK2=class("SkillNode_ATK2",SkillNode)
 
 function SkillNode_ATK2.create()
-	print("SkillNode_ATK2.create");
+	prints("SkillNode_ATK2.create");
 	local layer=SkillNode_ATK2.new()
 	layer:InitParms_Sub()
 	return layer;
 end
 
 function SkillNode_ATK2:InitParms_Sub()
-	print("SkillNode_ATK2:InitParms_Sub");
+	prints("SkillNode_ATK2:InitParms_Sub");
 	self:InitParms();
 	table.insert(self.coverRanges,cc.rect(0, -170, 140, 180));
 	self.executeDelayTime = 0.25;
@@ -184,14 +184,14 @@ end
 SkillNode_ATK3=class("SkillNode_ATK3",SkillNode)
 
 function SkillNode_ATK3.create()
-	print("SkillNode_ATK3.create");
+	prints("SkillNode_ATK3.create");
 	local layer=SkillNode_ATK3.new()
 	layer:InitParms_Sub()
 	return layer;
 end
 
 function SkillNode_ATK3:InitParms_Sub()
-	print("SkillNode_ATK3:InitParms_Sub");
+	prints("SkillNode_ATK3:InitParms_Sub");
 	self:InitParms();
 	table.insert(self.coverRanges,cc.rect(0, -100, 200, 220));
 	self.executeDelayTime = 0.55;
@@ -211,14 +211,14 @@ end
 SkillNode_ATK4=class("SkillNode_ATK4",SkillNode)
 
 function SkillNode_ATK4.create()
-	print("SkillNode_ATK4.create");
+	prints("SkillNode_ATK4.create");
 	local layer=SkillNode_ATK4.new()
 	layer:InitParms_Sub()
 	return layer;
 end
 
 function SkillNode_ATK4:InitParms_Sub()
-	print("SkillNode_ATK4:InitParms_Sub");
+	prints("SkillNode_ATK4:InitParms_Sub");
 	self:InitParms();
 	table.insert(self.coverRanges,cc.rect(-80, -100, 260, 200));
 	self.executeDelayTime = 0.6;
@@ -248,14 +248,14 @@ end
 SkillNode_ATK5=class("SkillNode_ATK5",SkillNode)
 
 function SkillNode_ATK5.create()
-	print("SkillNode_ATK5.create");
+	prints("SkillNode_ATK5.create");
 	local layer=SkillNode_ATK5.new()
 	layer:InitParms_Sub()
 	return layer;
 end
 
 function SkillNode_ATK5:InitParms_Sub()
-	print("SkillNode_ATK5:InitParms_Sub");
+	prints("SkillNode_ATK5:InitParms_Sub");
 	self:InitParms();
 	table.insert(self.coverRanges,cc.rect(-400, -200, 800, 400));
 	self.executeDelayTime = 0.8;
@@ -310,20 +310,20 @@ end
 SkillNode_ATK6=class("SkillNode_ATK6",SkillNode)
 
 function SkillNode_ATK6.create()
-	print("SkillNode_ATK6.create");
+	prints("SkillNode_ATK6.create");
 	local layer=SkillNode_ATK6.new()
 	layer:InitParms_Sub()
 	return layer;
 end
 
 function SkillNode_ATK6:InitParms_Sub()
-	print("SkillNode_ATK6:InitParms_Sub");
+	prints("SkillNode_ATK6:InitParms_Sub");
 	self:InitParms();
 	table.insert(self.coverRanges,cc.rect(-70, -100, 880, 350));
 	self.executeDelayTime = 2;
 	self.removeDelayTime = 0.5;
 	self.mpneed = 50;
-	self.damage = 2300;
+	self.damage = 7300;
 	local sp1 = cc.Sprite:create("Skill/atk6d.png");
 	sp1:setAnchorPoint(0.04, 0.5);
 	sp1:setPosition(0,0);
@@ -385,4 +385,26 @@ function SkillNode_ATK6:Start_Sub()
 	sp2:stopAllActions();
 	sp2:runAction(self.sk_ac1);
 	PlaySound("Sound/thunder.wav");
+end
+
+
+--SkillNode_Mons1
+-------------------------------------
+
+SkillNode_Mons1=class("SkillNode_Mons1",SkillNode)
+
+function SkillNode_Mons1.create()
+	prints("SkillNode_Mons1.create");
+	local layer=SkillNode_Mons1.new()
+	layer:InitParms_Sub()
+	return layer;
+end
+
+function SkillNode_Mons1:InitParms_Sub()
+	prints("SkillNode_Mons1:InitParms_Sub");
+	self:InitParms();
+	table.insert(self.coverRanges,cc.rect(0, -50, 100, 100));
+	self.damage = 800;
+	self.executeDelayTime = 0;
+	self.removeDelayTime = 0;
 end

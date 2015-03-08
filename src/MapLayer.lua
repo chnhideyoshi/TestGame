@@ -29,6 +29,7 @@ function MapLayer:InitDefaultParms()
 	self.movementYBound1 = 323;
 	self.movementXOffsetThreshold = 200;
 	self.monsters={};
+	self.monstersflag={};
 end
 
 function MapLayer:InitComponents()
@@ -115,18 +116,21 @@ function MapLayer:InitPlayer()
 			ret=self.skManager:PlayerExecuteSkill(PLAYER_SKILL_ATK7,self.mapPanel);
 		end
 	end
-	self.player.WinEnd=function(sender)
-		self:Win();
-	end
-	self.player.WinEnd=function(sender)
-		self:Lose();
+	self.player.End=function(sender,endtype)
+		if endtype==0 then
+			self:Lose();
+		elseif endtype==1 then
+			self:Win();
+		else
+			prints("WelcomeEnd")
+		end
 	end
 	
 	print("~InitPlayer")
 end
 
 function MapLayer:InitMonsters()
-	local count=7;
+	local count=8;
 	self.monsters={};
 	local sz=self.mapPanel:getContentSize();
 	local vec=GetRandPointsInRect(1,self.movementYBound0,sz.width-1,self.movementYBound1-100,count)
@@ -137,6 +141,7 @@ function MapLayer:InitMonsters()
 		mon:SetMovementRange(0, self.mapPanel:getContentSize().width - 5, self.movementYBound0, self.movementYBound1);
 		self.mapPanel:addChild(mon);
 		table.insert(self.monsters,mon);
+		table.insert(self.monstersflag,true);
 	end
 	
 end
@@ -213,7 +218,7 @@ function MapLayer:CreateMonster(mtype)
 		mon:removeFromParent();
 		local index=-1;
 		for i = 1,#self.monsters do
-			if (mon == monsters[i]) then
+			if (mon == self.monsters[i]) then
 				index=i;
 				break;
 			end
@@ -228,14 +233,12 @@ function MapLayer:CreateMonster(mtype)
 end
 
 function MapLayer:Win()
-	--CocosDenshion::SimpleAudioEngine::sharedEngine()->stopBackgroundMusic(true);
 	if (self.MapEnd ~= nil) then
 		self.MapEnd(true);
 	end
 end
 
 function MapLayer:Lose()
-	--CocosDenshion::SimpleAudioEngine::sharedEngine()->stopBackgroundMusic(true);
 	if (self.MapEnd ~= nil) then
 		self.MapEnd(false);
 	end

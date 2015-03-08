@@ -55,6 +55,13 @@ PLAYER_SKILL_ATK7=6
 MONSTER_SKILL_1=7
 
 
+showconsolemsg=true;
+
+function prints(msg)
+	if(showconsolemsg) then
+		print(msg);
+	end
+end
 
 
 function createWithSingleFrameName(name,delay,loop)

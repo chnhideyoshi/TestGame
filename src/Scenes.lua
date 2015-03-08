@@ -1,9 +1,11 @@
 
 function GetStartScene()
-	print("load start scene!")
+	prints("load start scene!")
 	local sceneGame = cc.Scene:create()
 	local layer= MainMenuLayer.create();
 	local callback=function(type)
+		cc.MessageBox("","");
+		
 		if type == 1 then
 			cc.Director:getInstance():replaceScene(cc.TransitionProgressInOut:create(0.2,GetMainScene()))
 		end
@@ -13,26 +15,25 @@ function GetStartScene()
 	end;
 	layer.NextSceneCalled=callback;
 	sceneGame:addChild(layer);
-	print("load start scene cmp")
+	prints("load start scene cmp")
 	return sceneGame;
 end
 
 function GetMainScene()
-	print("load main scene!")
+	prints("load main scene!")
 	local sceneGame = cc.Scene:create()
 	local layer= MapLayer.create();
 	layer.MapEnd=function(result)
+		prints("MapEnd")
 		StopMusic();
 		if result then
-			
 			cc.Director:getInstance():replaceScene(cc.TransitionProgressInOut:create(0.2,GetStartScene()))
 		else
 			cc.Director:getInstance():replaceScene(cc.TransitionProgressInOut:create(0.2,GetStartScene()))
 		end
-		
 	end
 	PlayMusic("Sound//map1.mp3");
 	sceneGame:addChild(layer);
-	print("load main scene cmp!")
+	prints("load main scene cmp!")
 	return sceneGame;
 end

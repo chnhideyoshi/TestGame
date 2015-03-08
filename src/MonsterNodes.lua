@@ -39,7 +39,7 @@ function MonsterNode:InitDefaultParams()
 end
 
 function MonsterNode:InitComponents()
-	print("InitComponents")
+	prints("InitComponents")
 	self.rootNode=cc.Node:create();
 	self.rootNode:setAnchorPoint(0.5, 0.5);
 	self.rootNode:setPosition(0, 0);
@@ -62,11 +62,11 @@ function MonsterNode:InitComponents()
 	flow:setPosition(0,0);
 	self:addChild(flow);
 	
-	print("~InitComponents")
+	prints("~InitComponents")
 end
 
 function MonsterNode:InitEventHandlers()
-	print("InitEventHandlers")
+	prints("InitEventHandlers")
 	local function onKeyPressed_mon(keyCode, event)
 		if keyCode==KEY_SPACE then
 			self:Test();
@@ -76,7 +76,7 @@ function MonsterNode:InitEventHandlers()
     local listener = cc.EventListenerKeyboard:create()
     listener:registerScriptHandler(onKeyPressed_mon, cc.Handler.EVENT_KEYBOARD_PRESSED)
     dispatcher:addEventListenerWithSceneGraphPriority(listener,self)
-	print("~InitEventHandlers")
+	prints("~InitEventHandlers")
 end
 
 function MonsterNode:InitAnimations()
@@ -109,7 +109,7 @@ function MonsterNode:SetMovementRange(minX,maxX,minY,maxY)
 end
 
 function MonsterNode:ChangeHp(hp,reboundType)
-	print("MonsterNode:ChangeHp")
+	prints("MonsterNode:ChangeHp")
 	if hp < 0 then
 		hp = 0;
 	end
@@ -159,7 +159,7 @@ function MonsterNode:StartATK()
 		self.inATK = true;
 		mon:runAction(self.action_Attack);
 		if self.Attack ~= nil then
-			self.Attack(this);
+			self.Attack(self);
 		end
 	end
 end
@@ -195,7 +195,7 @@ function MonsterNode:onEndDead()
 end
 
 function MonsterNode:Rebound(deltaHp,reboundType)
-	print("MonsterNode:Rebound")
+	prints("MonsterNode:Rebound")
 	if reboundType==0 then
 		self:stopAllActions();
 		local leng=deltaHp/8;
