@@ -42,6 +42,7 @@ KEY_A=124;
 KEY_S=142;
 KEY_D=127;
 KEY_Q=140;
+KEY_ESC=6;
 
 -- Skills
 PLAYER_SKILL_ATK1=0
@@ -55,7 +56,7 @@ PLAYER_SKILL_ATK7=6
 MONSTER_SKILL_1=7
 
 
-showconsolemsg=true;
+showconsolemsg=false;
 
 function prints(msg)
 	if(showconsolemsg) then
@@ -176,52 +177,23 @@ function StopMusic()
 	cc.SimpleAudioEngine:getInstance():stopMusic();
 end
 
-
---[[------------------------------------------------------------
-TestLayer = class("TestLayer",function()
-    return cc.Layer:create();
-end)
-
-function TestLayer.create()
-	local obj=TestLayer.new();
-	obj:Init();
-	return obj;
+function MessageBoxShow(panel,message,itype,callback)
+	if panel:getChildByName("MessageBox") == nil then
+		cc.Director:getInstance():pause();
+		local mesb=MessageBoxLayer.create();
+		mesb:setName("MessageBox");
+		if message~="" then
+			mesb:SetMessage(message);
+		end
+		mesb:SetImage(itype);
+		if callback==nil then
+			mesb.Return=function()
+				cc.Director:getInstance():resume();
+			end
+		else
+			mesb.Return=callback;
+		end
+		panel:addChild(mesb);
+	end
 end
 
-function TestLayer:Init()
-	self.p1=0;
-end
-
-function TestLayer:Start()
-	print("base start");
-end
-
-TestLayerSub=class("TestLayerSub",TestLayer)
-
-function TestLayerSub.create()
-	local obj=TestLayerSub.new();
-	obj:Init();
-	return obj;
-end
-
-function TestLayerSub:Start()
-	TestLayer.super.Start(self);
-	print("sub");
-	print(self.p1);
-end
-
-TestLayerSub2=class("TestLayerSub2",function()
-	return TestLayer.create();
-end)
-
-function TestLayerSub2.create()
-	local obj=TestLayerSub2.new();
-	obj:Init();
-	return obj;
-end
-
-function TestLayerSub2:Start()
-	--TestLayer.super.Start(self);
-	print("sub2");
-	print(self.p1);
-end--]]

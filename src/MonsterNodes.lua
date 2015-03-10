@@ -482,3 +482,72 @@ function MonsterNode:InitAnimations_3()
 
 	self:BecomeStand()
 end
+
+--boss
+-----------------------------------------------------
+function MonsterNode.create_4()
+	local node=MonsterNode.new()
+	node:init_4()
+	return node;
+end
+
+function MonsterNode:init_4()
+	self:InitDefaultParams_4();
+	self:InitComponents_4();
+	self:InitEventHandlers_4();
+	self:InitAnimations_4();
+	self:InitUpdate();
+	return true;
+end
+
+function MonsterNode:InitDefaultParams_4()
+	self:InitDefaultParams();
+	self.maxHp = 300000;
+	self.curHp = self.maxHp;
+	self.speedrate=3;
+	self.enableTargetSeeking = false;
+end
+
+function MonsterNode:InitComponents_4()
+	self:InitComponents();
+	local sp = cc.Sprite:create("Mons//bossd.png");
+	sp:setContentSize(cc.size(88, 101));
+	sp:setName("sp");
+	sp:setAnchorPoint(0.5, 0.5);
+	self.sprite=sp;
+	self.rootNode:addChild(sp);
+end
+
+function MonsterNode:InitEventHandlers_4()
+	self:InitEventHandlers();
+end
+
+function MonsterNode:InitAnimations_4()
+	self:InitAnimations();
+	local frameCache = cc.SpriteFrameCache:getInstance();
+	frameCache:addSpriteFrames("Mons\\boss.plist", "Mons\\boss.png");
+
+	local pIdleAnim=createWithSingleFrameName("f", 0.2, 1);
+	self.action_Idle=cc.RepeatForever:create(cc.Animate:create(pIdleAnim));
+	self.action_Idle:retain();
+	
+	local pAttackAnim=createWithSingleFrameName("a", 0.2, 1);
+	self.action_Attack=cc.Sequence:create(cc.Animate:create(pAttackAnim),cc.CallFunc:create(function(node,value)
+		self:onEndATK();
+	end));
+	self.action_Attack:retain();
+
+	local pHurtAnim=createWithSingleFrameNameAndCount("h", 2, 0.2, 1);
+	self.action_Hurt=cc.Sequence:create(cc.Animate:create(pHurtAnim),cc.CallFunc:create(function(node,value)
+		self:onEndHurt();
+	end));
+	self.action_Hurt:retain();
+	
+	local pDeadAnim = createWithSingleFrameName("d", 0.2, 1);
+	self.action_Dead=cc.Sequence:create(cc.Animate:create(pDeadAnim),cc.Blink:create(3, 9),cc.CallFunc:create(function(node,value)
+		self:onEndDead();
+	end));
+	self.action_Dead:retain();	
+
+	self:BecomeStand()
+end

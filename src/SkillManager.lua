@@ -17,15 +17,6 @@ end
 
 function SkillManager:RegisterAllSkills()
 	prints("SkillManager:RegisterAllSkills")
---[[	
-		RegisterPlayerSkill(Skill_ATK1::create(), PLAYER_SKILL_ATK1, "atk1");
-		RegisterPlayerSkill(Skill_ATK2::create(), PLAYER_SKILL_ATK2, "atk2");
-		RegisterPlayerSkill(Skill_ATK3::create(), PLAYER_SKILL_ATK3, "atk3");
-		RegisterPlayerSkill(Skill_ATK4::create(), PLAYER_SKILL_ATK4, "atk4");
-		RegisterPlayerSkill(Skill_ATK5::create(), PLAYER_SKILL_ATK5, "atk5");
-		RegisterPlayerSkill(Skill_ATK6::create(), PLAYER_SKILL_ATK6,"atk6");
-		RegisterPlayerSkill(Skill_ATK7::create(), PLAYER_SKILL_ATK7, "atk7");
-		RegisterMonsterSkill(Skill_Mons1::create(), MONSTER_SKILL_1,"mons1");--]]
 	local frameCache = cc.SpriteFrameCache:getInstance();
 	frameCache:addSpriteFrames("Skill\\atk7.plist", "Skill\\atk7.png");
 	frameCache:addSpriteFrames("Skill\\atk6.plist", "Skill\\atk6.png");	
@@ -96,17 +87,29 @@ end
 
 function SkillManager:PlayerCalculateDamage(skill)
 	prints("SkillManager:PlayerCalculateDamage")
+	skill.startPosition=cc.p(skill:getPosition());
 	for i=1,#self.monsters do
 		if(self.monsters[i]~=nil) then
 			local posX,posY=(self.monsters[i]):getPosition()
-			if skill:IsSkillRangeCover(cc.p(posX,posY)) then
-				local hp=self.monsters[i].curHp;
-				local rebtype=1;
-				if skill:getName()~="atk5" then
-					rebtype=0; 
+			local id=self.monsters[i].id;
+			local ret=skill:IsSkillRangeCover(cc.p(posX,posY))
+			if ret then
+				if skill.oncelocked then
+					if(skill.lockedTable[id]==nil) then
+						skill.lockedTable[id]=true;
+						prints(string.format("%d locked",id));
+						local hp=self.monsters[i].curHp;
+						self.monsters[i]:ChangeHp(hp - skill:GetDamage(), 0);
+					end
+				else
+					local hp=self.monsters[i].curHp;
+					local rebtype=1;
+					if skill:getName()~="atk5" then
+						rebtype=0; 
+					end
+					self.monsters[i]:ChangeHp(hp - skill:GetDamage(), rebtype);
+					skill:ShowDamage(self.monsters[i],i);
 				end
-			self.monsters[i]:ChangeHp(hp - skill:GetDamage(), rebtype);
-			skill:ShowDamage(self.monsters[i],i);
 			end
 		end
 	end

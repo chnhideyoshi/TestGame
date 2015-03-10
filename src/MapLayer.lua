@@ -47,8 +47,30 @@ end
 
 function MapLayer:InitEventHandlers()
 	local function onKeyPressed_map(keyCode, event)
+		--print(keyCode);
 		if keyCode==KEY_SPACE then
-			self:Test();
+			--self:Test();
+		end
+		if keyCode==KEY_ESC then
+			if self:getChildByName("LY_ESCMenu") == nil then
+				cc.Director:getInstance():pause();
+				local layer = EscMenuLayer.create();
+				layer:setAnchorPoint(0, 0);
+				layer:setPosition(0,0);
+				layer:setName("LY_ESCMenu");
+				layer:setGlobalZOrder(91);
+				layer.Return = function()
+					cc.Director:getInstance():resume();
+				end
+				layer.Exit=function()
+					cc.Director:getInstance():endToLua();
+				end
+				self:addChild(layer);
+				
+			else
+				self:removeChild(self:getChildByName("LY_ESCMenu"));
+				cc.Director:getInstance():resume();
+			end
 		end
 	end
 	local dispatcher = cc.Director:getInstance():getEventDispatcher()
@@ -82,6 +104,7 @@ function MapLayer:InitPlayer()
 		self.navigator:SetHpValue(sender.Hp);
 		self.navigator:SetHpPercentage(sender.Hp * 100 / sender.MaxHp);
 		if (sender.Hp == 0) then
+			StopMusic();
 			sender:SetOnceState(O_STATE_DEAD);
 		end
 	end
@@ -118,8 +141,10 @@ function MapLayer:InitPlayer()
 	end
 	self.player.End=function(sender,endtype)
 		if endtype==0 then
+			self.player:setVisible(false);
 			self:Lose();
 		elseif endtype==1 then
+			self.player:setVisible(false);
 			self:Win();
 		else
 			prints("WelcomeEnd")
@@ -130,20 +155,75 @@ function MapLayer:InitPlayer()
 end
 
 function MapLayer:InitMonsters()
-	local count=8;
+	local count=7;
 	self.monsters={};
 	local sz=self.mapPanel:getContentSize();
 	local vec=GetRandPointsInRect(1,self.movementYBound0,sz.width-1,self.movementYBound1-100,count)
 	for i=1,count do
-		local mon = self:CreateMonster((i-1)%3);
+		local mtype=(i-1)%3;
+		if i==count then
+			mtype=4;
+		end
+		local mon = self:CreateMonster(mtype);
 		mon:setPosition(vec[i]);
+		if mtype==4 then
+			mon:setPosition(2600,200);
+			mon.enableTargetSeeking=false;
+		end
+		mon.id=i;
 		mon:setGlobalZOrder(5);
-		mon:SetMovementRange(0, self.mapPanel:getContentSize().width - 5, self.movementYBound0, self.movementYBound1);
+		if mtype==3 then
+			mon:setPosition(vec[i].x,vec[i].y+400);
+			mon:SetMovementRange(0, self.mapPanel:getContentSize().width - 5, 0,self.mapPanel:getContentSize().height );
+		else
+			mon:SetMovementRange(0, self.mapPanel:getContentSize().width - 5, self.movementYBound0, self.movementYBound1);
+		end
 		self.mapPanel:addChild(mon);
 		table.insert(self.monsters,mon);
 		table.insert(self.monstersflag,true);
 	end
+end
+
+
+function MapLayer:CreateMonster(mtype)
+	local monster=nil;
+	if mtype==0 then
+		monster=MonsterNode.create_1();
+	elseif mtype==1 then
+		monster=MonsterNode.create_2();
+	elseif mtype==2 then
+		monster=MonsterNode.create_3();
+	else
+		monster=MonsterNode.create_4();
+	end
+	monster:setAnchorPoint(0.5, 0.5);
+	monster.enableTargetSeeking=true;
+	monster.target=self.player;
+	monster.Attack=function(mon)
+		self.skManager:MonsterExecuteSkill(mon, MONSTER_SKILL_1, self.mapPanel);
+	end
+	monster.Dead=function(mon)
+		mon:removeFromParent();
+		local index=-1;
+		for i = 1,#self.monsters do
+			if (mon == self.monsters[i]) then
+				index=i;
+				break;
+			end
+		end
+		table.remove(self.monsters,index);
+		if #self.monsters ==1 then
+			self.monsters[1].enableTargetSeeking=true;
+			self.monsters[1].maxHp=20000
+			self.monsters[1].curHp=20000
+		end
+		if #self.monsters ==0 then
+			StopMusic();
+			self.player:SetOnceState(O_STATE_WIN);
+		end
+	end
 	
+	return monster;
 end
 
 function MapLayer:InitSkills()
@@ -199,38 +279,6 @@ function MapLayer:ManagePlayerMovement()
 	self.mapPanel:setPosition(newbackx,curBakPosY);
 end
 
-function MapLayer:CreateMonster(mtype)
-	local monster=nil;
-	if mtype==0 then
-		monster=MonsterNode.create_1();
-	elseif mtype==1 then
-		monster=MonsterNode.create_2();
-	else
-		monster=MonsterNode.create_3();
-	end
-	monster:setAnchorPoint(0.5, 0.5);
-	monster.enableTargetSeeking=true;
-	monster.target=self.player;
-	monster.Attack=function(mon)
-		self.skManager:MonsterExecuteSkill(mon, MONSTER_SKILL_1, self.mapPanel);
-	end
-	monster.Dead=function(mon)
-		mon:removeFromParent();
-		local index=-1;
-		for i = 1,#self.monsters do
-			if (mon == self.monsters[i]) then
-				index=i;
-				break;
-			end
-		end
-		table.remove(self.monsters,index);
-		if #self.monsters ==0 then
-			self.player:SetOnceState(O_STATE_WIN);
-		end
-	end
-	
-	return monster;
-end
 
 function MapLayer:Win()
 	if (self.MapEnd ~= nil) then

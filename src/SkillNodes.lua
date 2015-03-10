@@ -19,6 +19,8 @@ function SkillNode:InitParms()
 	self.startPosition=cc.p(0,0);
 	self.damage=1;
 	self.mpneed=1;
+	self.oncelocked=false;
+	self.lockedTable={};
 	self.isforward=true;
 	self.removeDelayTime=0;
 	self.executeDelayTime=0;
@@ -214,33 +216,64 @@ function SkillNode_ATK4.create()
 	prints("SkillNode_ATK4.create");
 	local layer=SkillNode_ATK4.new()
 	layer:InitParms_Sub()
+	
 	return layer;
 end
 
 function SkillNode_ATK4:InitParms_Sub()
 	prints("SkillNode_ATK4:InitParms_Sub");
 	self:InitParms();
-	table.insert(self.coverRanges,cc.rect(-80, -100, 260, 200));
+	table.insert(self.coverRanges,cc.rect(-10, -80, 20, 160));
 	self.executeDelayTime = 0.6;
 	self.removeDelayTime = 0;
 	self.mpneed = 220;
 	self.damage = 850;
+	self.speed=12;
 	local sp1=cc.Sprite:create("Skill/atk4d.png");
 	sp1:setAnchorPoint(0.5, 0.5);
 	sp1:setPosition(-20, 0);
 	sp1:setName("sp1");
 	self:addChild(sp1);
 	local pATK4=createWithSingleFrameName("sk6_",0.02,13);
-	self.sk_ac=cc.Sequence:create(cc.DelayTime:create(0.2),cc.Animate:create(pATK4));
+	self.sk_ac=cc.Sequence:create(cc.Animate:create(pATK4));
 	self.sk_ac:retain();
+	sp1:setVisible(false);
+end
+
+function SkillNode_ATK4:BeginUpdate()
+	self:scheduleUpdateWithPriorityLua(function(dt)
+		if self.oncelocked then
+			self:onExecuteDamage_Sub(dt);
+		end
+    end,0)
 end
 
 function SkillNode_ATK4:Start_Sub()
-	self:Start_d();
+	prints("SkillNode_ATK4:Start_Sub");
 	local sp1 = self:getChildByName("sp1");
+	sp1:setVisible(true);
+	local delta=1500;
+	if not self.isforward then
+		 delta=-1500;
+	end
+	self.lockedTable={}
+	self.oncelocked=true;
+	self.tarpos=cc.p(tarposX,self.startPosition.y);
 	sp1:stopAllActions();
+	local ac2=cc.Sequence:create(cc.MoveBy:create(1.5,cc.p(delta,0)),cc.CallFunc:create(function(node,value)
+		self.oncelocked=false;
+		self:onSkillEnd(0);
+	end));
 	sp1:runAction(self.sk_ac);
+	self:runAction(ac2);
+	self:BeginUpdate();
 	PlaySound("Sound/hit2.wav");
+end
+
+function SkillNode_ATK4:onExecuteDamage_Sub(dt)                                                                                                                                             
+	if self.ExecuteDamage ~= nil then
+		self.ExecuteDamage(self);
+	end
 end
 
 --SkillNode_ATK5
@@ -257,7 +290,7 @@ end
 function SkillNode_ATK5:InitParms_Sub()
 	prints("SkillNode_ATK5:InitParms_Sub");
 	self:InitParms();
-	table.insert(self.coverRanges,cc.rect(-400, -200, 800, 400));
+	table.insert(self.coverRanges,cc.rect(-600, -200, 1200, 400));
 	self.executeDelayTime = 0.8;
 	self.removeDelayTime = 0.5;
 	self.mpneed = 300;
@@ -322,8 +355,8 @@ function SkillNode_ATK6:InitParms_Sub()
 	table.insert(self.coverRanges,cc.rect(-70, -100, 880, 350));
 	self.executeDelayTime = 2;
 	self.removeDelayTime = 0.5;
-	self.mpneed = 50;
-	self.damage = 7300;
+	self.mpneed = 550;
+	self.damage = 3300;
 	local sp1 = cc.Sprite:create("Skill/atk6d.png");
 	sp1:setAnchorPoint(0.04, 0.5);
 	sp1:setPosition(0,0);

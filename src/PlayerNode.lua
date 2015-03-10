@@ -354,6 +354,7 @@ function PlayerNode:StartWin()
 	if self.OnceStateChanged ~= nil then
 		self.OnceStateChanged(self, O_STATE_WIN);
 	end
+	PlaySound("Sound//win.wav");
 end
 
 function PlayerNode:EndATK()
