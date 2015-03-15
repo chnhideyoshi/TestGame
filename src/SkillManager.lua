@@ -120,10 +120,20 @@ function SkillManager:MonsterCalculateDamage(skill)
 	if self.player.curOState==O_STATE_DEAD then
 		return;
 	end
-	if skill:IsSkillRangeCover(cc.p(self.player:getPosition())) then
-		local hp=skill:GetDamage();
-		self.player:ChangeHp(self.player.Hp-hp);
+	if self.player.Hp==0 then
+		return;
 	end
+	if(self==nil or self.player==nil) then
+		return;
+	end
+	pcall(function() 
+		local pos=cc.p(self.player:getPosition());
+		if skill:IsSkillRangeCover(pos) then
+			local hp=skill:GetDamage();
+			self.player:ChangeHp(self.player.Hp-hp);
+		end
+	end)
+	
 	
 end
 

@@ -55,6 +55,7 @@ PLAYER_SKILL_ATK7=6
 
 MONSTER_SKILL_1=7
 
+FULL_EXECUTE_PATH="";
 
 showconsolemsg=false;
 
@@ -166,15 +167,35 @@ function GetCenterFloatRandom(d,rate)
 end
 
 function PlaySound(name)
-    cc.SimpleAudioEngine:getInstance():playEffect(name,false);
+	local fullconvpath=string.format("%s/%s",GetIconvExecutePath(),name);
+    cc.SimpleAudioEngine:getInstance():playEffect(fullconvpath,false);
 end
 
 function PlayMusic(name)
-    cc.SimpleAudioEngine:getInstance():playMusic(name,true);
+	local fullconvpath=string.format("%s/%s",GetIconvExecutePath(),name);
+    cc.SimpleAudioEngine:getInstance():playMusic(fullconvpath,true);
 end
 
 function StopMusic()
 	cc.SimpleAudioEngine:getInstance():stopMusic();
+end
+
+function GetIconvExecutePath()
+	if FULL_EXECUTE_PATH =="" then
+		local fullpath=cc.FileUtils:getInstance():fullPathForFilename("ND_Mons1B.csb");
+		--print(fullpath);
+		local len=string.len(fullpath);
+		fullpath=string.sub(fullpath,1,len-13);
+		--print(fullpath);
+		local iconv=require("luaiconv")
+		local cd = iconv.new("gbk","utf-8")
+		local fullpathnew, err = cd:iconv(fullpath)
+		--print(fullpathnew);
+		FULL_EXECUTE_PATH=fullpathnew;
+		return FULL_EXECUTE_PATH;
+	else
+		return FULL_EXECUTE_PATH;
+	end
 end
 
 function MessageBoxShow(panel,message,itype,callback)

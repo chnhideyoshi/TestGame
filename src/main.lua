@@ -122,6 +122,7 @@ local function main()
 	end--]]
 	
 	---------------------
+	GetIconvExecutePath();
 	local schedulerID = 0
     local visibleSize = cc.Director:getInstance():getVisibleSize()
     local origin = cc.Director:getInstance():getVisibleOrigin()
